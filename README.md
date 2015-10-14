@@ -1,6 +1,10 @@
-# GDEB Blog
+# Moebius
 
-to do
+This is an experiment in SSPA (Single Static Page Application).  I have no idea
+if the term SSPA actually exists, but it describes quite well the idea: the
+application is completely static, but the client code is a SPA, which does routing
+and all that stuff.
+
 
 ## Prerequisites
 
