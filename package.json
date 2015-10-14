@@ -1,0 +1,22 @@
+{
+  "name": "gdeb",
+  "version": "0.0.1",
+  "description": "Personal blog application",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "elm"
+  ],
+  "author": "Géry Debongnie",
+  "license": "ISC",
+  "dependencies": {
+    "brunch": "^1.8.5",
+    "clean-css-brunch": "^1.7.2",
+    "css-brunch": "^1.7.0",
+    "elm-brunch": "^0.3.0",
+    "javascript-brunch": "^1.7.1",
+    "stylus-brunch": "^1.8.1"
+  }
+}

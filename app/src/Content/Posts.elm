@@ -1,0 +1,91 @@
+module Content.Posts where
+
+import Html exposing (Html, text, h1, div)
+import Layout
+import Elements
+
+render: Layout.UI -> Layout.Screen
+render ui =
+    { header = []
+    , content = view
+    , footer = Elements.footer
+    }
+
+
+-- posts
+view: List Html
+view =
+    [ h1 [] [text "Posts"]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    , div [] [ text "aaaa" ]
+    ]
+
