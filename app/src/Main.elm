@@ -80,44 +80,8 @@ update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
     let
-        elements =
-            model.route.screen model.layout
-
-        mainContent =
-            [ div [ class "header" ] elements.header
-            , div [ class "content" ] elements.content
-            , div [ class "footer" ] elements.footer
-            ]
+        context =
+            UI.Context model.layout model.route.url Routing.pathAddress
     in
-        case model.layout of
-            UI.Mobile ->
-                div [ class "mobile" ] mainContent
-            UI.Desktop width ->
-                div [ class "desktop" ]
-                    [ sidebar model.route
-                    , div [ class "main-content" ] mainContent
-                    ]
-
-sidebar: Routing.Route -> Html
-sidebar current =
-    let
-        isActive url =
-            if url == current.url then [class "active"] else []
-
-        linkTo url =
-            History.setPath url |> Html.Events.onClick Routing.pathAddress
-
-        makeListItem url descr =
-            li ([linkTo url] ++ (isActive url))
-            [ a [href url] [ text descr ]
-            ]
-    in
-        div [ class "sidebar" ]
-            [ div [ class "title", linkTo "/" ] [ text "gdeb" ]
-            , ul []
-                [ makeListItem "/about.html" "about"
-                , makeListItem "/posts.html" "posts"
-                , makeListItem "/projects.html" "projects"
-                ]
-            ]
+        model.route.screen context
 

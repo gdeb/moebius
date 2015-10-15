@@ -4,11 +4,7 @@ import Html exposing (Html, text, h1, p)
 import UI
 
 screen: UI.Screen
-screen ui =
-    { header = [ text "Home" ]
-    , content = view
-    , footer = UI.footer
-    }
+screen = UI.genericView view
 
 view: List Html
 view =

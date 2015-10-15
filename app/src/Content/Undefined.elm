@@ -6,11 +6,8 @@ import UI
 --import Routes exposing (linkTo)
 
 screen: UI.Screen
-screen layout =
-    { header = []
-    , content = view
-    , footer = []
-    }
+screen = UI.genericView view
+
 
 
 -- projects
