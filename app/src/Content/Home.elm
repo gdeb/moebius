@@ -2,13 +2,12 @@ module Content.Home where
 
 import Html exposing (Html, text, h1, p)
 import UI
-import Shared
 
 screen: UI.Screen
 screen ui =
     { header = [ text "Home" ]
     , content = view
-    , footer = Shared.footer
+    , footer = UI.footer
     }
 
 view: List Html

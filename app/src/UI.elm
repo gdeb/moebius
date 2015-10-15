@@ -22,3 +22,6 @@ type alias Screen = Layout ->
     , footer: List Html.Html
     }
 
+footer: List Html.Html
+footer =
+    [ Html.text "© 2015 Géry Debongnie, all rights reserved." ]
