@@ -1,15 +1,15 @@
-module Content.Projects where
+module Views.Projects where
 
 import Html exposing (Html, text, h1, div, p)
 import UI
 
-screen: UI.Screen
-screen = UI.genericView view
+view: UI.Screen
+view = UI.genericView "Projects" content
 
 
 -- projects
-view: List Html
-view =
+content: List Html
+content =
     [ h1 [] [text "Projects"]
     , p [] [ text "content" ]
     ]

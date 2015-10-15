@@ -1,17 +1,17 @@
-module Content.Posts where
+module Views.Posts where
 
 import Html exposing (Html, text, h1, div)
 import UI
 
 
-screen: UI.Screen
-screen = UI.genericView view
+view: UI.Screen
+view = UI.genericView "Posts" content
 
 
 
 -- posts
-view: List Html
-view =
+content: List Html
+content =
     [ h1 [] [text "Posts"]
     , div [] [ text "aaaa" ]
     , div [] [ text "aaaa" ]

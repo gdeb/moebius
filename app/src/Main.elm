@@ -1,13 +1,9 @@
 module Main where
 
-import Html exposing (Html, div, button, text, ul, a, li)
-import Html.Attributes exposing (class, href)
-import Html.Events
+import Html exposing (Html)
 import Task exposing (Task)
 import Effects exposing (Effects, Never)
 import StartApp as StartApp
-import History
-
 
 import UI
 import Routing
@@ -33,13 +29,12 @@ main =
 
 
 -- ports
-
-port tasks : Signal (Task Never ())
-port tasks = app.tasks
-
 port initialPath: String
 
 port initialWidth: Int
+
+port tasks : Signal (Task Never ())
+port tasks = app.tasks
 
 port runTask : Signal (Task error ())
 port runTask = Routing.pathSignal
@@ -77,11 +72,12 @@ update action model =
 
 
 -- view
+
 view : Signal.Address Action -> Model -> Html
 view address model =
     let
         context =
             UI.Context model.layout model.route.url Routing.pathAddress
     in
-        model.route.screen context
+        model.route.view context
 

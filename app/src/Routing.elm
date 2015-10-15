@@ -6,34 +6,34 @@ import Task
 
 import UI
 
-import Content.About
-import Content.Home
-import Content.Posts
-import Content.Projects
-import Content.Undefined
+import Views.About
+import Views.Home
+import Views.Posts
+import Views.Projects
+import Views.Undefined
 
 type alias Route =
-    { screen: UI.Screen
+    { view: UI.Screen
     , url: String
     }
 
 undefinedRoute: Route
 undefinedRoute =
-    Route Content.Undefined.screen "404"
+    Route Views.Undefined.view "404"
 
 type alias Routes = Dict.Dict String Route
 
 routes: Routes
 routes =
-    let addRoute url screen routes =
-        Dict.insert url (Route screen url) routes
+    let addRoute url view routes =
+        Dict.insert url (Route view url) routes
     in
         Dict.empty
-            |> addRoute "/" Content.Home.screen
-            |> addRoute "/index.html" Content.Home.screen
-            |> addRoute "/about.html" Content.About.screen
-            |> addRoute "/posts.html" Content.Posts.screen
-            |> addRoute "/projects.html" Content.Projects.screen
+            |> addRoute "/" Views.Home.view
+            |> addRoute "/index.html" Views.Home.view
+            |> addRoute "/about.html" Views.About.view
+            |> addRoute "/posts.html" Views.Posts.view
+            |> addRoute "/projects.html" Views.Projects.view
 
 getRoute: String -> Route
 getRoute url =

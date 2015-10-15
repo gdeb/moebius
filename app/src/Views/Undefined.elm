@@ -1,18 +1,18 @@
-module Content.Undefined where
+module Views.Undefined where
 
 import Html exposing (Html, text, h1, div, p, button)
 import UI
 
 --import Routes exposing (linkTo)
 
-screen: UI.Screen
-screen = UI.genericView view
+view: UI.Screen
+view = UI.genericView "Wrong url" content
 
 
 
 -- projects
-view: List Html
-view =
+content: List Html
+content =
     [ h1 [] [text "Wrong url"]
     , p [] [ text """
         For some reason, you are actually visiting an undefined url.  This is

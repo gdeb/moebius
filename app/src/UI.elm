@@ -30,9 +30,36 @@ type alias Context =
 
 type alias Screen = Context -> Html
 
-footer: List Html.Html
+-- utility functions
+
+genericView: String -> List Html -> Context -> Html
+genericView title content context =
+    let
+        content' =
+            [ div [ class "header" ] (header title)
+            , div [ class "content" ] content
+            , div [ class "footer" ] []
+            ]
+    in
+        case context.layout of
+            Mobile ->
+                div [ class "mobile" ] content'
+            Desktop width ->
+                div [ class "desktop" ]
+                    [ sidebar context
+                    , div [ class "main-content" ] content'
+                    ]
+
+
+header: String -> List Html
+header title =
+    [ text title ]
+
+
+footer: List Html
 footer =
-    [ Html.text "© 2015 Géry Debongnie, all rights reserved." ]
+    [ text "© 2015 Géry Debongnie, all rights reserved." ]
+
 
 sidebar: Context -> Html
 sidebar context =
@@ -57,22 +84,4 @@ sidebar context =
                 ]
             ]
 
-
-genericView: List Html -> Context -> Html
-genericView content context =
-    let
-        content' =
-            [ div [ class "header" ] []
-            , div [ class "content" ] content
-            , div [ class "footer" ] []
-            ]
-    in
-        case context.layout of
-            Mobile ->
-                div [ class "mobile" ] content'
-            Desktop width ->
-                div [ class "desktop" ]
-                    [ sidebar context
-                    , div [ class "main-content" ] content'
-                    ]
 

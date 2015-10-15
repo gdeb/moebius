@@ -1,13 +1,13 @@
-module Content.Home where
+module Views.Home where
 
 import Html exposing (Html, text, h1, p)
 import UI
 
-screen: UI.Screen
-screen = UI.genericView view
+view: UI.Screen
+view = UI.genericView "Home" content
 
-view: List Html
-view =
+content: List Html
+content =
     [ h1 [] [text "Home"]
     , p [] [ text "This is a work in progress" ]
     ]
