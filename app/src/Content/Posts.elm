@@ -1,11 +1,11 @@
 module Content.Posts where
 
 import Html exposing (Html, text, h1, div)
-import Route
+import UI
 import Shared
 
-route: Route.Route
-route ui =
+screen: UI.Screen
+screen ui =
     { header = []
     , content = view
     , footer = Shared.footer

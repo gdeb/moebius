@@ -1,22 +1,24 @@
-module App where
+module Main where
 
 import Html exposing (Html, div, button, text, ul, a, li)
 import Html.Attributes exposing (class, href)
+import Html.Events
 import Task exposing (Task)
 import Effects exposing (Effects, Never)
 import StartApp as StartApp
+import History
 
-import Layout
-import Route
-import Routes
+
+import UI
+import Routing
 
 -- main
 
 app: StartApp.App Model
 app =
     let
-        paths = Signal.map UpdateRoute Routes.currentRoute
-        uis = Signal.map UpdateLayout Layout.current
+        paths = Signal.map UpdateRoute Routing.currentRoute
+        uis = Signal.map UpdateLayout UI.current
     in
         StartApp.start
             { init = init
@@ -40,28 +42,28 @@ port initialPath: String
 port initialWidth: Int
 
 port runTask : Signal (Task error ())
-port runTask = Route.pathSignal
+port runTask = Routing.pathSignal
 
 
 -- model
 type alias Model =
-    { route: Route.Route
-    , layout: Layout.Layout
+    { route: Routing.Route
+    , layout: UI.Layout
     }
 
 
 init: (Model, Effects Action)
 init =
     let model =
-        Model (Routes.getRoute initialPath) (Layout.getLayout initialWidth)
+        Model (Routing.getRoute initialPath) (UI.getLayout initialWidth)
     in
         (model, Effects.none)
 
 -- update
 
 type Action
-    = UpdateRoute Route.Route
-    | UpdateLayout Layout.Layout
+    = UpdateRoute Routing.Route
+    | UpdateLayout UI.Layout
 
 
 update: Action -> Model -> (Model, Effects Action)
@@ -79,7 +81,7 @@ view : Signal.Address Action -> Model -> Html
 view address model =
     let
         elements =
-            model.route model.layout
+            model.route.screen model.layout
 
         mainContent =
             [ div [ class "header" ] elements.header
@@ -88,32 +90,34 @@ view address model =
             ]
     in
         case model.layout of
-            Layout.Mobile ->
+            UI.Mobile ->
                 div [ class "mobile" ] mainContent
-            Layout.Desktop width ->
+            UI.Desktop width ->
                 div [ class "desktop" ]
                     [ sidebar model.route
                     , div [ class "main-content" ] mainContent
                     ]
 
-sidebar: Route.Route -> Html
+sidebar: Routing.Route -> Html
 sidebar current =
     let
-        -- isActive location =
-            -- if location == current then [class "active"] else []
+        isActive url =
+            if url == current.url then [class "active"] else []
 
-        makeListItem = 1
-        -- makeListItem location descr =
-            -- li ([linkTo location] ++ (isActive location))
-            -- [ a [href (Routes.getUrl location)] [ text descr ]
-            -- ]
+        linkTo url =
+            History.setPath url |> Html.Events.onClick Routing.pathAddress
+
+        makeListItem url descr =
+            li ([linkTo url] ++ (isActive url))
+            [ a [href url] [ text descr ]
+            ]
     in
         div [ class "sidebar" ]
-            [ div [ class "title" ] [ text "gdeb" ]
-            , ul [] []
-                -- [ makeListItem Routes.About "about"
-                -- , makeListItem Routes.Posts "posts"
-                -- , makeListItem Routes.Projects "projects"
-                -- ]
+            [ div [ class "title", linkTo "/" ] [ text "gdeb" ]
+            , ul []
+                [ makeListItem "/about.html" "about"
+                , makeListItem "/posts.html" "posts"
+                , makeListItem "/projects.html" "projects"
+                ]
             ]
 

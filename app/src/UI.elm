@@ -1,5 +1,6 @@
-module Layout where
+module UI where
 
+import Html
 import Window
 
 type Layout = Desktop Int | Mobile
@@ -14,4 +15,10 @@ current =
         |> Signal.map getLayout
         |> Signal.dropRepeats
 
+
+type alias Screen = Layout ->
+    { header: List Html.Html
+    , content: List Html.Html
+    , footer: List Html.Html
+    }
 

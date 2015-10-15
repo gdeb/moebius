@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>gdeb</title>
-  <script type="text/javascript" src="app.js"></script>
+  <script type="text/javascript" src="main.js"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -12,12 +12,8 @@
 </body>
 
 <script type="text/javascript">
-//Elm.embed(Elm.App, document.body, {
-    //initialPath: window.location.pathname,
-    //initialWidth: window.innerWidth,
-//});
 
-var app = Elm.fullscreen(Elm.App, {
+var app = Elm.fullscreen(Elm.Main, {
     initialPath: window.location.pathname,
     initialWidth: window.innerWidth,
 });

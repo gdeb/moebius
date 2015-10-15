@@ -2,13 +2,14 @@ module Content.About where
 
 import Html exposing (Html, text, h1, p)
 
-import Route
+import UI
+import Shared
 
-route: Route.Route
-route ui =
+screen: UI.Screen
+screen ui =
     { header = []
     , content = view
-    , footer = []
+    , footer = Shared.footer
     }
 
 view: List Html

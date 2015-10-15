@@ -12,7 +12,7 @@
      },
      plugins: {
        elmBrunch: {
-         mainModules: ["app/src/App.elm"],
+         mainModules: ["app/src/Main.elm"],
          outputFolder: "public/"
        }
      }

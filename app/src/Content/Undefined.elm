@@ -1,12 +1,12 @@
 module Content.Undefined where
 
 import Html exposing (Html, text, h1, div, p, button)
-import Route
+import UI
 
 --import Routes exposing (linkTo)
 
-route: Route.Route
-route layout =
+screen: UI.Screen
+screen layout =
     { header = []
     , content = view
     , footer = []

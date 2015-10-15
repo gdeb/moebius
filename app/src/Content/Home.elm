@@ -1,11 +1,11 @@
 module Content.Home where
 
 import Html exposing (Html, text, h1, p)
-import Route
+import UI
 import Shared
 
-route: Route.Route
-route ui =
+screen: UI.Screen
+screen ui =
     { header = [ text "Home" ]
     , content = view
     , footer = Shared.footer
