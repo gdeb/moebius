@@ -30,7 +30,7 @@ type alias Context =
 
 type alias Screen = Context -> Html
 
--- utility functions
+-- layout related functions
 
 genericView: String -> List Html -> Context -> Html
 genericView title content context =
@@ -38,7 +38,7 @@ genericView title content context =
         content' =
             [ div [ class "header" ] (header title)
             , div [ class "content" ] content
-            , div [ class "footer" ] []
+            , div [ class "footer" ] footer
             ]
     in
         case context.layout of
@@ -67,16 +67,13 @@ sidebar context =
         isActive url =
             if url == context.url then [class "active"] else []
 
-        linkTo url =
-            History.setPath url |> Html.Events.onClick context.path
-
         makeListItem url descr =
-            li ([linkTo url] ++ (isActive url))
+            li ([linkTo context url] ++ (isActive url))
             [ a [href url] [ text descr ]
             ]
     in
         div [ class "sidebar" ]
-            [ div [ class "title", linkTo "/" ] [ text "gdeb" ]
+            [ div [ class "title", linkTo context "/" ] [ text "gdeb" ]
             , ul []
                 [ makeListItem "/about.html" "about"
                 , makeListItem "/posts.html" "posts"
@@ -84,4 +81,8 @@ sidebar context =
                 ]
             ]
 
+-- utility
+linkTo: Context -> String -> Html.Attribute
+linkTo context url =
+    History.setPath url |> Html.Events.onClick context.path
 
