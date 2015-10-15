@@ -1,12 +1,12 @@
 module Content.Undefined where
 
 import Html exposing (Html, text, h1, div, p, button)
-import Layout
+import Route
 
-import Routes exposing (linkTo)
+--import Routes exposing (linkTo)
 
-render: Layout.UI -> Layout.Screen
-render ui =
+route: Route.Route
+route layout =
     { header = []
     , content = view
     , footer = []
@@ -23,10 +23,10 @@ view =
         everything in my power to prevent such errors to happen again in the
         future.""" ]
     , p [] [ text "May I suggest that you click on one of these links?" ]
-    , div [] [ button [linkTo Routes.Home] [ text "Home" ]
-             , button [linkTo Routes.About] [ text "About" ]
-             , button [linkTo Routes.Posts] [ text "Posts" ]
-             ]
+    --, div [] [ button [linkTo Routes.Home] [ text "Home" ]
+             --, button [linkTo Routes.About] [ text "About" ]
+             --, button [linkTo Routes.Posts] [ text "Posts" ]
+             --]
     ]
 
 header: List Html

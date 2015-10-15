@@ -1,14 +1,14 @@
 module Content.Home where
 
 import Html exposing (Html, text, h1, p)
-import Layout
-import Elements
+import Route
+import Shared
 
-render: Layout.UI -> Layout.Screen
-render ui =
+route: Route.Route
+route ui =
     { header = [ text "Home" ]
     , content = view
-    , footer = Elements.footer
+    , footer = Shared.footer
     }
 
 view: List Html

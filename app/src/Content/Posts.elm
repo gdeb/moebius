@@ -1,14 +1,14 @@
 module Content.Posts where
 
 import Html exposing (Html, text, h1, div)
-import Layout
-import Elements
+import Route
+import Shared
 
-render: Layout.UI -> Layout.Screen
-render ui =
+route: Route.Route
+route ui =
     { header = []
     , content = view
-    , footer = Elements.footer
+    , footer = Shared.footer
     }
 
 

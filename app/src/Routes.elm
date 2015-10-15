@@ -1,49 +1,36 @@
 module Routes where
 
-import Task exposing (Task)
-import Html exposing (Attribute)
+import Dict exposing (insert)
 import History exposing (setPath)
-import Html.Events exposing (onClick)
 
-import Layout exposing (Screen)
+import Route
+
 import Content.About
+import Content.Home
+import Content.Posts
+import Content.Projects
+import Content.Undefined
 
-pathChangeMailbox : Signal.Mailbox (Task error ())
-pathChangeMailbox = Signal.mailbox (Task.succeed ())
+routes: Dict.Dict String Route.Route
+routes =
+    Dict.empty
+        |> insert "/" Content.Home.route
+        |> insert "/index.html" Content.Home.route
+        |> insert "/about.html" Content.About.route
+        |> insert "/posts.html" Content.Posts.route
+        |> insert "/projects.html" Content.Projects.route
 
-pathSignal = pathChangeMailbox.signal
-
-pathAddress = pathChangeMailbox.address
-
-type Location = Home | About | Posts | Projects | Undefined
-
-
-getRoute : String -> Location
+getRoute: String -> Route.Route
 getRoute url =
-    case url of
-        "/" -> Home
-        "/index.html" -> Home
-        "/about.html" -> About
-        "/posts.html" -> Posts
-        "/projects.html" -> Projects
-        _ -> Undefined
-
-getUrl : Location -> String
-getUrl location =
-    case location of
-        Home -> "/"
-        About -> "/about.html"
-        Posts -> "/posts.html"
-        Projects -> "/projects.html"
-        Undefined -> "/"
-
-linkTo: Location -> Attribute
-linkTo location =
-    location
-    |> getUrl
-    |> setPath
-    |> onClick pathAddress
+    case Dict.get url routes of
+        Just route -> route
+        Nothing -> Content.Undefined.route
 
 
-locations: Signal Location
-locations = Signal.map getRoute History.path
+currentRoute: Signal Route.Route
+currentRoute =
+    Signal.map getRoute History.path
+
+
+
+

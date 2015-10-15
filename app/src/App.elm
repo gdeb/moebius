@@ -7,21 +7,16 @@ import Effects exposing (Effects, Never)
 import StartApp as StartApp
 
 import Layout
-import Content.About
-import Content.Home
-import Content.Posts
-import Content.Projects
-import Content.Undefined
-import Routes exposing (Location, pathSignal, linkTo, locations)
-import Elements
+import Route
+import Routes
 
 -- main
 
 app: StartApp.App Model
 app =
     let
-        paths = Signal.map UpdatePath Routes.locations
-        uis = Signal.map UpdateUI Layout.uis
+        paths = Signal.map UpdateRoute Routes.currentRoute
+        uis = Signal.map UpdateLayout Layout.current
     in
         StartApp.start
             { init = init
@@ -45,54 +40,46 @@ port initialPath: String
 port initialWidth: Int
 
 port runTask : Signal (Task error ())
-port runTask = pathSignal
+port runTask = Route.pathSignal
 
 
 -- model
 type alias Model =
-    { location: Location
-    , ui: Layout.UI
+    { route: Route.Route
+    , layout: Layout.Layout
     }
 
 
 init: (Model, Effects Action)
 init =
     let model =
-        Model (Routes.getRoute initialPath) (Layout.getUI initialWidth)
+        Model (Routes.getRoute initialPath) (Layout.getLayout initialWidth)
     in
         (model, Effects.none)
 
 -- update
 
 type Action
-    = UpdatePath Location
-    | UpdateUI Layout.UI
+    = UpdateRoute Route.Route
+    | UpdateLayout Layout.Layout
 
 
 update: Action -> Model -> (Model, Effects Action)
 update action model =
     let model' =
         case action of
-            UpdatePath location -> { model | location <- location }
-            UpdateUI ui -> { model | ui <- ui }
+            UpdateRoute route -> { model | route <- route }
+            UpdateLayout layout -> { model | layout <- layout }
     in
         (model', Effects.none)
 
-renderElements: Location -> Layout.UI -> Layout.Screen
-renderElements location ui =
-    case location of
-        Routes.About -> Content.About.render ui
-        Routes.Home -> Content.Home.render ui
-        Routes.Posts -> Content.Posts.render ui
-        Routes.Projects -> Content.Projects.render ui
-        Routes.Undefined -> Content.Undefined.render ui
 
 -- view
 view : Signal.Address Action -> Model -> Html
 view address model =
     let
         elements =
-            renderElements model.location model.ui
+            model.route model.layout
 
         mainContent =
             [ div [ class "header" ] elements.header
@@ -100,12 +87,33 @@ view address model =
             , div [ class "footer" ] elements.footer
             ]
     in
-        case model.ui of
+        case model.layout of
             Layout.Mobile ->
                 div [ class "mobile" ] mainContent
             Layout.Desktop width ->
                 div [ class "desktop" ]
-                    [ Elements.sidebar model.location
+                    [ sidebar model.route
                     , div [ class "main-content" ] mainContent
                     ]
+
+sidebar: Route.Route -> Html
+sidebar current =
+    let
+        -- isActive location =
+            -- if location == current then [class "active"] else []
+
+        makeListItem = 1
+        -- makeListItem location descr =
+            -- li ([linkTo location] ++ (isActive location))
+            -- [ a [href (Routes.getUrl location)] [ text descr ]
+            -- ]
+    in
+        div [ class "sidebar" ]
+            [ div [ class "title" ] [ text "gdeb" ]
+            , ul [] []
+                -- [ makeListItem Routes.About "about"
+                -- , makeListItem Routes.Posts "posts"
+                -- , makeListItem Routes.Projects "projects"
+                -- ]
+            ]
 

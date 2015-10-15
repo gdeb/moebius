@@ -1,10 +1,10 @@
 module Content.Projects where
 
 import Html exposing (Html, text, h1, div, p)
-import Layout
+import Route
 
-render: Layout.UI -> Layout.Screen
-render ui =
+route: Route.Route
+route layout =
     { header = []
     , content = view
     , footer = []
