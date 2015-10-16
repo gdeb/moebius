@@ -80,7 +80,7 @@ update action model =
             let
                 model' = { model | nextRoute <- Just route }
             in
-                if route.url == model.route.url then
+                if route.url == model.route.url || not (model.animation == Nothing) then
                     (model, Effects.none)
                 else
                     (model', Effects.tick Tick)
