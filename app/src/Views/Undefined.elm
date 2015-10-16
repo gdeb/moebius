@@ -1,7 +1,6 @@
 module Views.Undefined where
 
 import Html exposing (Html, text, h1, div, p, button)
-import Html.Attributes exposing (class, style)
 import UI exposing (linkTo)
 
 view: UI.View
@@ -9,15 +8,6 @@ view context =
     { content = content context
     , sidebar = Nothing
     }
-    --case context.layout of
-        --UI.Mobile ->
-            --div [ class "mobile" ]
-                --[ div [ class "header" ] [ text "Wrong url" ]
-                --, div [ class "content" ] (content context)
-                --, div [ class "footer" ] []
-                --]
-        --UI.Desktop width ->
-            --div [ style [ ("padding", "30px") ] ] (content context)
 
 
 -- projects
@@ -35,6 +25,7 @@ content context =
              , button [linkTo context "/posts.html"] [ text "Posts" ]
              ]
     ]
+
 
 header: List Html
 header =

@@ -51,11 +51,12 @@ type alias Model =
     , animation: AnimationState
     }
 
+
 type alias AnimationState =
     Maybe { prevClockTime : Time
           , elapsedTime: Time
-          , alpha: Float
           }
+
 
 init: (Model, Effects Action)
 init =
@@ -71,7 +72,10 @@ type Action
     | UpdateLayout UI.Layout
     | Tick Time
 
+
+duration: Float
 duration = Time.second*0.8
+
 
 update: Action -> Model -> (Model, Effects Action)
 update action model =
@@ -85,7 +89,7 @@ update action model =
                 else
                     (model', Effects.tick Tick)
 
-        UpdateLayout layout -> 
+        UpdateLayout layout ->
             ({ model | layout <- layout }, Effects.none)
 
         Tick clockTime ->
@@ -98,7 +102,7 @@ update action model =
                 newElapsedTime =
                     case model.animation of
                         Nothing -> 0
-                        Just {elapsedTime, prevClockTime, alpha} ->
+                        Just {elapsedTime, prevClockTime} ->
                               elapsedTime + (clockTime - prevClockTime)
             in
                 if newElapsedTime > duration then
@@ -109,7 +113,7 @@ update action model =
                     , Effects.none
                     )
                 else
-                    ( { model | animation <- Just { elapsedTime = newElapsedTime, prevClockTime = clockTime, alpha = 0.3 }
+                    ( { model | animation <- Just { elapsedTime = newElapsedTime, prevClockTime = clockTime }
                     }
                     , Effects.tick Tick
                     )
@@ -123,7 +127,7 @@ view address model =
         Nothing ->
             UI.Context model.layout model.route.url Routing.pathAddress
                 |> model.route.view
-                |> render
+                |> UI.render
         Just animation ->
             let
                 nextRoute = case model.nextRoute of
@@ -138,45 +142,18 @@ view address model =
                     UI.Context model.layout nextRoute.url Routing.pathAddress
                         |> nextRoute.view
 
-                leftOffset: Int -> Int
+                alpha =
+                    ease easeOutBounce float 0 1 duration animation.elapsedTime
                 leftOffset w =
-                    round (240 + (toOffset model.animation) * (toFloat w - 240))
+                    round (240 + alpha * (toFloat w - 240))
             in
                 case model.layout of
                     UI.Mobile ->
                         div [] [ text "hmmmm" ]
                     UI.Desktop width ->
                         div []
-                            [ render nextScreen
-                            , div [ class "desktop"] 
+                            [ UI.render nextScreen
+                            , div [ class "desktop"]
                                   [ div [class "animating main-content", style [("left", toString (leftOffset width) ++ "px")]] currentScreen.content ]
                             ]
 
-    --let
-        --context =
-            --UI.Context model.layout model.route.url Routing.pathAddress
---
-        --screen =
-            --model.route.view context
-    --in
-        --render screen
-
-toOffset : AnimationState -> Float
-toOffset animationState =
-    case animationState of
-        Nothing ->
-            0
-
-        Just {elapsedTime, prevClockTime} ->
-            ease easeOutBounce float 0 1 duration elapsedTime
-
-render: UI.Screen -> Html
-render screen =
-    case screen.sidebar of
-        Just sidebar ->
-            div [ class "desktop" ]
-                [ sidebar
-                , div [ class "main-content" ] screen.content
-                ]
-        Nothing ->
-            div [ class "mobile" ] screen.content

@@ -54,6 +54,18 @@ genericView title content context =
         Screen sidebar' content'
 
 
+render: Screen -> Html
+render screen =
+    case screen.sidebar of
+        Just sidebar ->
+            div [ class "desktop" ]
+                [ sidebar
+                , div [ class "main-content" ] screen.content
+                ]
+        Nothing ->
+            div [ class "mobile" ] screen.content
+
+
 header: String -> List Html
 header title =
     [ text title ]
