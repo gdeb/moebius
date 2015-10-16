@@ -3,7 +3,7 @@ module Views.Home where
 import Html exposing (Html, text, h1, p)
 import UI
 
-view: UI.Screen
+view: UI.View
 view = UI.genericView "Home" content
 
 content: List Html

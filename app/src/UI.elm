@@ -28,11 +28,16 @@ type alias Context =
     }
 
 
-type alias Screen = Context -> Html
+type alias Screen =
+    { sidebar: Maybe Html
+    , content: List Html
+    }
+
+type alias View = Context -> Screen
 
 -- layout related functions
 
-genericView: String -> List Html -> Context -> Html
+genericView: String -> List Html -> View
 genericView title content context =
     let
         content' =
@@ -40,15 +45,13 @@ genericView title content context =
             , div [ class "content" ] content
             , div [ class "footer" ] footer
             ]
+
+        sidebar' =
+            case context.layout of
+                Mobile -> Nothing
+                Desktop _ -> Just (sidebar context)
     in
-        case context.layout of
-            Mobile ->
-                div [ class "mobile" ] content'
-            Desktop width ->
-                div [ class "desktop" ]
-                    [ sidebar context
-                    , div [ class "main-content" ] content'
-                    ]
+        Screen sidebar' content'
 
 
 header: String -> List Html

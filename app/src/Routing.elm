@@ -13,7 +13,7 @@ import Views.Projects
 import Views.Undefined
 
 type alias Route =
-    { view: UI.Screen
+    { view: UI.View
     , url: String
     }
 
