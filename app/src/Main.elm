@@ -36,6 +36,8 @@ port initialPath: String
 
 port initialWidth: Int
 
+port initialHeight: Int
+
 port tasks : Signal (Task Never ())
 port tasks = app.tasks
 
@@ -61,7 +63,7 @@ type alias AnimationState =
 init: (Model, Effects Action)
 init =
     let model =
-        Model (Routing.getRoute initialPath) Nothing (UI.getLayout initialWidth) Nothing
+        Model (Routing.getRoute initialPath) Nothing (UI.getLayout (initialWidth, initialHeight)) Nothing
     in
         (model, Effects.none)
 
@@ -120,14 +122,19 @@ update action model =
 
 
 -- view
+sidebarWidth : Int
+sidebarWidth = 240
+
 
 view : Signal.Address Action -> Model -> Html
 view address model =
     case model.animation of
         Nothing ->
+            div [] [
             UI.Context model.layout model.route.url Routing.pathAddress
                 |> model.route.view
                 |> UI.render
+                ]
         Just animation ->
             let
                 nextRoute = case model.nextRoute of
@@ -146,14 +153,30 @@ view address model =
                     ease easeOutBounce float 0 1 duration animation.elapsedTime
                 leftOffset w =
                     round (240 + alpha * (toFloat w - 240))
+
+                marginTop h =
+                    round (alpha * (toFloat h))
             in
                 case model.layout of
                     UI.Mobile ->
                         div [] [ text "hmmmm" ]
-                    UI.Desktop width ->
+                    UI.Desktop width height ->
                         div []
-                            [ UI.render nextScreen
-                            , div [ class "desktop"]
-                                  [ div [class "animating main-content", style [("left", toString (leftOffset width) ++ "px")]] currentScreen.content ]
+                            [ render (marginTop height) currentScreen
+                            , div [ class "desktop", style [("position", "fixed"), ("top", "0px")]]
+                                  [ div [class "main-content", style [("margin-left", toString sidebarWidth ++ "px"), ("margin-top",toString ((marginTop height) - height) ++ "px"), ("display", "flex")]] nextScreen.content ]
                             ]
+
+
+render: Int -> UI.Screen -> Html
+render marginTop screen =
+    case screen.sidebar of
+        Just sidebar ->
+            div [ class "desktop" ]
+                [ sidebar
+                , div [ class "main-content", style [("margin-top", toString marginTop ++ "px")] ] screen.content
+                ]
+        Nothing ->
+            div [ class "mobile" ] screen.content
+
 

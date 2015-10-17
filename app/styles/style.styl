@@ -26,14 +26,14 @@ body
         align-items: center
 
 .desktop
-    display: flex
 
     .sidebar
         background-color: $main-color
         width: $side-bar-width
+        height: 100vh
+        display: inline-block
         color: white
         vertical-align: top
-        flex-shrink: 0
         -webkit-user-select: none
         user-select: none
 
@@ -66,10 +66,10 @@ body
             background-color: $main-color - 7%
 
     .main-content
-        flex-grow: 1
-        display: flex
+        display: inline-flex
         flex-direction: column
         height: 100vh
+        width: "calc(100vw - %s)" % $side-bar-width
         overflow: auto
 
         .header

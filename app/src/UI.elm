@@ -8,15 +8,15 @@ import History
 import Window
 import Task
 
-type Layout = Desktop Int | Mobile
+type Layout = Desktop Int Int | Mobile
 
-getLayout: Int -> Layout
-getLayout width =
-    if width < 1000 then Mobile else Desktop width
+getLayout: (Int, Int) -> Layout
+getLayout (width, height) =
+    if width < 1000 then Mobile else Desktop width height
 
 current: Signal Layout
 current =
-    Window.width
+    Window.dimensions
         |> Signal.map getLayout
         |> Signal.dropRepeats
 
@@ -49,7 +49,7 @@ genericView title content context =
         sidebar' =
             case context.layout of
                 Mobile -> Nothing
-                Desktop _ -> Just (sidebar context)
+                Desktop _ _ -> Just (sidebar context)
     in
         Screen sidebar' content'
 
