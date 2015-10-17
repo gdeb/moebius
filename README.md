@@ -22,3 +22,22 @@ npm install
 ## Run
 
 `brunch watch --server`
+
+## Notes
+
+Interesting technical informations on this:
+- responsive without a single mediaquery (nor any css framework)
+- fully static, but with client side routing
+- no server side routing
+- completely generated programatically
+
+Fully static means that there are no rpc whatsoever.  This is of course only
+possible with the full content in each files.  Possible because the size of this
+website is quite small, especially gzipped.
+
+Advantages:
+- very simple to deploy, any static server will do
+- allow transitions between pages
+
+Nice to have:
+- typesafe routing (as in, statically checked, and guaranteed to be defined)
