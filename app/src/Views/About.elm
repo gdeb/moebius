@@ -2,9 +2,9 @@ module Views.About where
 
 import Html exposing (Html, text, h1, p)
 
-import UI exposing (Screen)
+import UI exposing (View)
 
-view: Screen
+view: View
 view =
     UI.genericView "About" content
 

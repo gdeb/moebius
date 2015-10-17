@@ -13,27 +13,28 @@ import Views.Projects
 import Views.Undefined
 
 type alias Route =
-    { view: UI.Screen
+    { view: UI.View
     , url: String
+    , sequence: Int
     }
 
 undefinedRoute: Route
 undefinedRoute =
-    Route Views.Undefined.view "404"
+    Route Views.Undefined.view "404" 999
 
 type alias Routes = Dict.Dict String Route
 
 routes: Routes
 routes =
-    let addRoute url view routes =
-        Dict.insert url (Route view url) routes
+    let addRoute url view seq routes =
+        Dict.insert url (Route view url seq) routes
     in
         Dict.empty
-            |> addRoute "/" Views.Home.view
-            |> addRoute "/index.html" Views.Home.view
-            |> addRoute "/about.html" Views.About.view
-            |> addRoute "/posts.html" Views.Posts.view
-            |> addRoute "/projects.html" Views.Projects.view
+            |> addRoute "/" Views.Home.view 0
+            |> addRoute "/index.html" Views.Home.view 0
+            |> addRoute "/about.html" Views.About.view 10
+            |> addRoute "/posts.html" Views.Posts.view 20
+            |> addRoute "/projects.html" Views.Projects.view 30
 
 getRoute: String -> Route
 getRoute url =

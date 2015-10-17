@@ -8,15 +8,15 @@ import History
 import Window
 import Task
 
-type Layout = Desktop Int | Mobile
+type Layout = Desktop Int Int | Mobile
 
-getLayout: Int -> Layout
-getLayout width =
-    if width < 1000 then Mobile else Desktop width
+getLayout: (Int, Int) -> Layout
+getLayout (width, height) =
+    if width < 1000 then Mobile else Desktop width height
 
 current: Signal Layout
 current =
-    Window.width
+    Window.dimensions
         |> Signal.map getLayout
         |> Signal.dropRepeats
 
@@ -28,11 +28,16 @@ type alias Context =
     }
 
 
-type alias Screen = Context -> Html
+type alias Screen =
+    { sidebar: Maybe Html
+    , content: List Html
+    }
+
+type alias View = Context -> Screen
 
 -- layout related functions
 
-genericView: String -> List Html -> Context -> Html
+genericView: String -> List Html -> View
 genericView title content context =
     let
         content' =
@@ -40,15 +45,25 @@ genericView title content context =
             , div [ class "content" ] content
             , div [ class "footer" ] footer
             ]
+
+        sidebar' =
+            case context.layout of
+                Mobile -> Nothing
+                Desktop _ _ -> Just (sidebar context)
     in
-        case context.layout of
-            Mobile ->
-                div [ class "mobile" ] content'
-            Desktop width ->
-                div [ class "desktop" ]
-                    [ sidebar context
-                    , div [ class "main-content" ] content'
-                    ]
+        Screen sidebar' content'
+
+
+render: Screen -> Html
+render screen =
+    case screen.sidebar of
+        Just sidebar ->
+            div [ class "desktop" ]
+                [ sidebar
+                , div [ class "main-content" ] screen.content
+                ]
+        Nothing ->
+            div [ class "mobile" ] screen.content
 
 
 header: String -> List Html

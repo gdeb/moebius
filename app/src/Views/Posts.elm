@@ -4,7 +4,7 @@ import Html exposing (Html, text, h1, div)
 import UI
 
 
-view: UI.Screen
+view: UI.View
 view = UI.genericView "Posts" content
 
 
