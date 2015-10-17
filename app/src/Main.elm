@@ -6,10 +6,10 @@ import Task exposing (Task)
 import Effects exposing (Effects, Never)
 import StartApp as StartApp
 import Time exposing (Time)
-import Easing exposing (ease, easeOutBounce, float)
+import Easing exposing (ease, float)
 
 import UI
-import Routing
+import Routing exposing (Route)
 
 -- main
 
@@ -48,22 +48,28 @@ port runTask = Routing.pathSignal
 -- model
 type alias Model =
     { route: Routing.Route
-    , nextRoute: Maybe Routing.Route
     , layout: UI.Layout
-    , animation: AnimationState
+    , animation: Maybe AnimationState
     }
 
 
+type Direction = Up | Down
+
 type alias AnimationState =
-    Maybe { prevClockTime : Time
-          , elapsedTime: Time
-          }
+    { prevClockTime : Time
+    , elapsedTime: Time
+    , nextRoute: Route
+    , direction: Direction
+    }
 
 
 init: (Model, Effects Action)
 init =
     let model =
-        Model (Routing.getRoute initialPath) Nothing (UI.getLayout (initialWidth, initialHeight)) Nothing
+        { route = Routing.getRoute initialPath
+        , layout = UI.getLayout (initialWidth, initialHeight)
+        , animation = Nothing
+        }
     in
         (model, Effects.none)
 
@@ -72,53 +78,58 @@ init =
 type Action
     = UpdateRoute Routing.Route
     | UpdateLayout UI.Layout
+    | StartAnimation Route Time
     | Tick Time
 
 
 duration: Float
-duration = Time.second*0.8
+duration = Time.second*0.5
 
 
 update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         UpdateRoute route ->
-            let
-                model' = { model | nextRoute <- Just route }
-            in
-                if route.url == model.route.url || not (model.animation == Nothing) then
-                    (model, Effects.none)
-                else
-                    (model', Effects.tick Tick)
+            if route.url == model.route.url || not (model.animation == Nothing) then
+                (model, Effects.none)
+            else
+                (model, Effects.tick (StartAnimation route))
 
         UpdateLayout layout ->
             ({ model | layout <- layout }, Effects.none)
 
-        Tick clockTime ->
+        StartAnimation route clockTime ->
             let
-                nextRoute =
-                    case model.nextRoute of
-                        Just r -> r
-                        Nothing -> model.route
+                direction =
+                    if route.sequence > model.route.sequence then
+                        Down
+                    else
+                        Up
 
-                newElapsedTime =
-                    case model.animation of
-                        Nothing -> 0
-                        Just {elapsedTime, prevClockTime} ->
-                              elapsedTime + (clockTime - prevClockTime)
+                animation =
+                    { prevClockTime = clockTime
+                    , elapsedTime = 0
+                    , nextRoute = route
+                    , direction = direction
+                    }
             in
-                if newElapsedTime > duration then
-                    ( { model | route <- nextRoute
-                        , nextRoute <- Nothing
-                        , animation <- Nothing
-                    }
-                    , Effects.none
-                    )
-                else
-                    ( { model | animation <- Just { elapsedTime = newElapsedTime, prevClockTime = clockTime }
-                    }
-                    , Effects.tick Tick
-                    )
+                ({ model | animation <- Just animation }, Effects.tick Tick)
+
+        Tick clockTime ->
+            case model.animation of
+                Nothing -> (model, Effects.none)
+                Just animation ->
+                    let newElapsedTime =
+                        animation.elapsedTime + clockTime - animation.prevClockTime
+                    in
+                        if newElapsedTime > duration then
+                            ( { model | route <- animation.nextRoute, animation <- Nothing }, Effects.none)
+                        else
+                            let
+                                animation' =
+                                    { animation | elapsedTime <- newElapsedTime, prevClockTime <- clockTime }
+                            in
+                                ({ model | animation <- Just animation' }, Effects.tick Tick)
 
 
 -- view
@@ -137,20 +148,16 @@ view address model =
                 ]
         Just animation ->
             let
-                nextRoute = case model.nextRoute of
-                    Just r -> r
-                    Nothing -> model.route
-
                 currentScreen =
                     UI.Context model.layout model.route.url Routing.pathAddress
                         |> model.route.view
 
                 nextScreen =
-                    UI.Context model.layout nextRoute.url Routing.pathAddress
-                        |> nextRoute.view
+                    UI.Context model.layout animation.nextRoute.url Routing.pathAddress
+                        |> animation.nextRoute.view
 
                 alpha =
-                    ease easeOutBounce float 0 1 duration animation.elapsedTime
+                    ease Easing.easeOutExpo float 0 1 duration animation.elapsedTime
                 leftOffset w =
                     round (240 + alpha * (toFloat w - 240))
 
@@ -161,11 +168,19 @@ view address model =
                     UI.Mobile ->
                         div [] [ text "hmmmm" ]
                     UI.Desktop width height ->
-                        div []
-                            [ render (marginTop height) currentScreen
-                            , div [ class "desktop", style [("position", "fixed"), ("top", "0px")]]
-                                  [ div [class "main-content", style [("margin-left", toString sidebarWidth ++ "px"), ("margin-top",toString ((marginTop height) - height) ++ "px"), ("display", "flex")]] nextScreen.content ]
-                            ]
+                        case animation.direction of
+                            Down ->
+                                div []
+                                    [ render (-(marginTop height)) currentScreen
+                                    , div [ class "desktop", style [("position", "fixed"), ("top", "0px")]]
+                                        [ div [class "main-content", style [("margin-left", toString sidebarWidth ++ "px"), ("margin-top",toString (height - (marginTop height)) ++ "px"), ("display", "flex")]] nextScreen.content ]
+                                    ]
+                            Up ->
+                                div []
+                                    [ render (marginTop height) currentScreen
+                                    , div [ class "desktop", style [("position", "fixed"), ("top", "0px")]]
+                                        [ div [class "main-content", style [("margin-left", toString sidebarWidth ++ "px"), ("margin-top",toString ((marginTop height) - height) ++ "px"), ("display", "flex")]] nextScreen.content ]
+                                    ]
 
 
 render: Int -> UI.Screen -> Html
@@ -174,7 +189,7 @@ render marginTop screen =
         Just sidebar ->
             div [ class "desktop" ]
                 [ sidebar
-                , div [ class "main-content", style [("margin-top", toString marginTop ++ "px")] ] screen.content
+                , div [ class "main-content", style [("float", "right"), ("margin-top", toString marginTop ++ "px")] ] screen.content
                 ]
         Nothing ->
             div [ class "mobile" ] screen.content
