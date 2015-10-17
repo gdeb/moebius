@@ -1,7 +1,7 @@
 module Main where
 
 import Html exposing (..)
-import Html.Attributes exposing (class, style)
+import Html.Attributes exposing (class, style, key)
 import Task exposing (Task)
 import Effects exposing (Effects, Never)
 import StartApp as StartApp
@@ -139,59 +139,50 @@ sidebarWidth = 240
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-    case model.animation of
-        Nothing ->
-            div [] [
-            UI.Context model.layout model.route.url Routing.pathAddress
-                |> model.route.view
-                |> UI.render
-                ]
-        Just animation ->
-            let
-                currentScreen =
-                    UI.Context model.layout model.route.url Routing.pathAddress
-                        |> model.route.view
+    case model.layout of
+        UI.Mobile ->
+            div [] [ render model.layout model.route 0 ]
 
-                nextScreen =
-                    UI.Context model.layout animation.nextRoute.url Routing.pathAddress
-                        |> animation.nextRoute.view
+        UI.Desktop width height ->
+            case model.animation of
+                Nothing ->
+                    div [] [ render model.layout model.route 0 ]
 
-                alpha =
-                    ease Easing.easeOutExpo float 0 1 duration animation.elapsedTime
-                leftOffset w =
-                    round (240 + alpha * (toFloat w - 240))
+                Just animation ->
+                    let
+                        alpha =
+                            ease Easing.easeInOutExpo float 0 1 duration animation.elapsedTime
 
-                marginTop h =
-                    round (alpha * (toFloat h))
-            in
-                case model.layout of
-                    UI.Mobile ->
-                        div [] [ text "hmmmm" ]
-                    UI.Desktop width height ->
-                        case animation.direction of
-                            Down ->
-                                div []
-                                    [ render (-(marginTop height)) currentScreen
-                                    , div [ class "desktop", style [("position", "fixed"), ("top", "0px")]]
-                                        [ div [class "main-content", style [("margin-left", toString sidebarWidth ++ "px"), ("margin-top",toString (height - (marginTop height)) ++ "px"), ("display", "flex")]] nextScreen.content ]
-                                    ]
-                            Up ->
-                                div []
-                                    [ render (marginTop height) currentScreen
-                                    , div [ class "desktop", style [("position", "fixed"), ("top", "0px")]]
-                                        [ div [class "main-content", style [("margin-left", toString sidebarWidth ++ "px"), ("margin-top",toString ((marginTop height) - height) ++ "px"), ("display", "flex")]] nextScreen.content ]
-                                    ]
+                        marginTop =
+                            round (alpha * (toFloat height))
 
+                        dir =
+                            case animation.direction of
+                                Down -> -1
+                                Up -> 1
+                    in
+                        div []
+                            [ render model.layout model.route (dir*marginTop)
+                            , render model.layout animation.nextRoute (dir*(marginTop - height))
+                            ]
 
-render: Int -> UI.Screen -> Html
-render marginTop screen =
-    case screen.sidebar of
-        Just sidebar ->
-            div [ class "desktop" ]
-                [ sidebar
-                , div [ class "main-content", style [("float", "right"), ("margin-top", toString marginTop ++ "px")] ] screen.content
-                ]
-        Nothing ->
-            div [ class "mobile" ] screen.content
+render: UI.Layout -> Route -> Int -> Html
+render layout route marginTop =
+    let
+        style' =
+            [("float", "right"), ("margin-top", toString marginTop ++ "px")]
+
+        screen =
+            UI.Context layout route.url Routing.pathAddress
+                |> route.view
+    in
+        case screen.sidebar of
+            Just sidebar ->
+                div [ class "desktop", key route.url ]
+                    [ sidebar
+                    , div [ class "main-content", style style' ] screen.content
+                    ]
+            Nothing ->
+                div [ class "mobile" ] screen.content
 
 
