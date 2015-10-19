@@ -83,7 +83,7 @@ type Action
 
 
 duration: Float
-duration = Time.second*0.5
+duration = Time.second*0.4
 
 
 update: Action -> Model -> (Model, Effects Action)
