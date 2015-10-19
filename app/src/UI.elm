@@ -78,7 +78,7 @@ sidebar context =
         div [ class "sidebar" ]
             [ div [ class "title", linkTo context "/" ] [ text "gdeb" ]
             , ul []
-                [ makeListItem "/about.html" "about"
+                [ makeListItem "/about.html" "about me"
                 , makeListItem "/posts.html" "posts"
                 , makeListItem "/projects.html" "projects"
                 ]
