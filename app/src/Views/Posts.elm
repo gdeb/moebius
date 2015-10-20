@@ -5,9 +5,11 @@ import UI
 import Date exposing (Date)
 import Date.Format exposing (format)
 
-
 view: UI.View
-view = UI.genericView "Posts" content
+view =
+    { content = \_ -> UI.genericContent "Posts" content UI.footer
+    , fullScreen = False
+    }
 
 posts : List Post
 posts =

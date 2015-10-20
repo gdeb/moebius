@@ -17,7 +17,7 @@ app: StartApp.App Model
 app =
     let
         paths = Signal.map UpdateRoute Routing.currentRoute
-        uis = Signal.map UpdateLayout UI.current
+        uis = Signal.map UpdateContext UI.current
     in
         StartApp.start
             { init = init
@@ -42,13 +42,13 @@ port tasks : Signal (Task Never ())
 port tasks = app.tasks
 
 port runTask : Signal (Task error ())
-port runTask = Routing.pathSignal
+port runTask = UI.pathSignal
 
 
 -- model
 type alias Model =
     { route: Routing.Route
-    , layout: UI.Layout
+    , context: UI.Context
     , animation: Maybe AnimationState
     }
 
@@ -67,7 +67,7 @@ init: (Model, Effects Action)
 init =
     let model =
         { route = Routing.getRoute initialPath
-        , layout = UI.getLayout (initialWidth, initialHeight)
+        , context = UI.getContext (initialWidth, initialHeight)
         , animation = Nothing
         }
     in
@@ -77,13 +77,13 @@ init =
 
 type Action
     = UpdateRoute Routing.Route
-    | UpdateLayout UI.Layout
+    | UpdateContext UI.Context
     | StartAnimation Route Time
     | Tick Time
 
 
 duration: Float
-duration = Time.second*0.4
+duration = Time.second*0.5
 
 
 update: Action -> Model -> (Model, Effects Action)
@@ -95,8 +95,8 @@ update action model =
             else
                 (model, Effects.tick (StartAnimation route))
 
-        UpdateLayout layout ->
-            ({ model | layout <- layout }, Effects.none)
+        UpdateContext context ->
+            ({ model | context <- context }, Effects.none)
 
         StartAnimation route clockTime ->
             let
@@ -133,56 +133,55 @@ update action model =
 
 
 -- view
-sidebarWidth : Int
-sidebarWidth = 240
-
-
 view : Signal.Address Action -> Model -> Html
 view address model =
-    case model.layout of
-        UI.Mobile ->
-            div [] [ render model.layout model.route 0 ]
-
-        UI.Desktop width height ->
-            case model.animation of
-                Nothing ->
-                    div [] [ render model.layout model.route 0 ]
-
-                Just animation ->
-                    let
-                        alpha =
-                            ease Easing.easeInOutExpo float 0 1 duration animation.elapsedTime
-
-                        marginTop =
-                            round (alpha * (toFloat height))
-
-                        dir =
-                            case animation.direction of
-                                Down -> -1
-                                Up -> 1
-                    in
-                        div []
-                            [ render model.layout model.route (dir*marginTop)
-                            , render model.layout animation.nextRoute (dir*(marginTop - height))
-                            ]
-
-render: UI.Layout -> Route -> Int -> Html
-render layout route marginTop =
     let
-        style' =
-            [("float", "right"), ("margin-top", toString marginTop ++ "px")]
+        content =
+            model.route.view.content model.context
 
-        screen =
-            UI.Context layout route.url Routing.pathAddress
-                |> route.view
+        sidebar =
+            if model.context.layout == UI.Mobile || model.route.view.fullScreen then
+                []
+            else
+                [UI.sidebar model.route.url]
+
+        render margin url content' =
+            let
+                style' = if margin == 0 then [] else [("margin-top", toString margin ++ "px")]
+            in
+                div [ class "main-content", style style', key url ] content'
     in
-        case screen.sidebar of
-            Just sidebar ->
-                div [ class "desktop", key route.url ]
-                    [ sidebar
-                    , div [ class "main-content", style style' ] screen.content
-                    ]
+        case model.animation of
             Nothing ->
-                div [ class "mobile" ] screen.content
+                case model.context.layout of
+                    UI.Mobile ->
+                        div [class "mobile" ] content
 
+                    UI.Desktop ->
+                        div [ class "desktop" ]
+                            (sidebar ++ [render 0 model.route.url content])
+
+            Just animation ->
+                let
+                    nextContent =
+                        animation.nextRoute.view.content model.context
+
+                    alpha =
+                        round <| ease Easing.easeInOutExpo float 0 (toFloat model.context.height) duration animation.elapsedTime
+
+                    dir =
+                        case animation.direction of
+                            Down -> -1
+                            Up -> 1
+                in
+                    case model.context.layout of
+                        UI.Mobile ->
+                            div [class "mobile" ] content
+
+                        UI.Desktop ->
+                            div [ class "desktop" ]
+                                (sidebar ++ 
+                                    [ render (dir * alpha) model.route.url content
+                                    , render (dir*(alpha - model.context.height)) animation.nextRoute.url nextContent
+                                    ])
 

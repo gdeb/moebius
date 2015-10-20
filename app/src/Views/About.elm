@@ -5,9 +5,11 @@ import Html.Attributes exposing (href)
 
 import UI exposing (View)
 
-view: View
+view: UI.View
 view =
-    UI.genericView "About" content
+    { content = \_ -> UI.genericContent "About" content UI.footer
+    , fullScreen = False
+    }
 
 
 content: List Html

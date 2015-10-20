@@ -4,9 +4,9 @@ import Html exposing (Html, text, h1, div, p, button)
 import UI exposing (linkTo)
 
 view: UI.View
-view context =
-    { content = content context
-    , sidebar = Nothing
+view =
+    { content = content
+    , fullScreen = True
     }
 
 
@@ -20,9 +20,9 @@ content context =
         everything in my power to prevent such errors to happen again in the
         future.""" ]
     , p [] [ text "May I suggest that you click on one of these links?" ]
-    , div [] [ button [linkTo context "/"] [ text "Home" ]
-             , button [linkTo context "/about.html"] [ text "About" ]
-             , button [linkTo context "/posts.html"] [ text "Posts" ]
+    , div [] [ button [linkTo "/"] [ text "Home" ]
+             , button [linkTo "/about.html"] [ text "About" ]
+             , button [linkTo "/posts.html"] [ text "Posts" ]
              ]
     ]
 

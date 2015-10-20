@@ -4,7 +4,10 @@ import Html exposing (Html, text, h1, div, p, h2, ul, li)
 import UI
 
 view: UI.View
-view = UI.genericView "Projects" content
+view =
+    { content = \_ -> UI.genericContent "Projects" content UI.footer
+    , fullScreen = False
+    }
 
 projects : List Project
 projects =

@@ -48,12 +48,3 @@ currentRoute =
     Signal.map getRoute History.path
 
 
-pathChangeMailbox : Signal.Mailbox (Task.Task error ())
-pathChangeMailbox = Signal.mailbox (Task.succeed ())
-
-pathSignal : Signal (Task.Task a ())
-pathSignal = pathChangeMailbox.signal
-
-pathAddress : Signal.Address (Task.Task a ())
-pathAddress = pathChangeMailbox.address
-
