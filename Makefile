@@ -12,3 +12,6 @@ prod: clean
 	cp public/index.html public/about.html
 	cp public/index.html public/posts.html
 	cp public/index.html public/projects.html
+
+devserver: clean
+	brunch watch --server
