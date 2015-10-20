@@ -1,6 +1,7 @@
 module Views.About where
 
-import Html exposing (Html, text, div, h1, h2, p, li, ul)
+import Html exposing (Html, text, div, h1, h2, p, li, ul, a)
+import Html.Attributes exposing (href)
 
 import UI exposing (View)
 
@@ -24,7 +25,8 @@ content =
     , ul []
         [ li [] [ text "link to my github page" ]
         , li [] [ text "link to my linked in page" ]
-        , li [] [ text "link to download my resume" ]
+        , li [] [ text "link to download my resume"
+                , a [href "resume.pdf" ] [ text "Resume" ] ]
         ]
     ]
 
