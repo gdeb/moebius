@@ -92,6 +92,8 @@ update action model =
         UpdateRoute route ->
             if route.url == model.route.url || not (model.animation == Nothing) then
                 (model, Effects.none)
+            else if route.view.fullScreen || model.route.view.fullScreen then
+                ({ model | route <- route}, Effects.none)
             else
                 (model, Effects.tick (StartAnimation route))
 
