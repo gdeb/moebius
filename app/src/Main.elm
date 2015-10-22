@@ -1,6 +1,6 @@
 module Main where
 
-import Dict exposing (insert)
+import Dict
 import Effects exposing (Effects, Never)
 import History
 import Html exposing (..)
@@ -69,17 +69,16 @@ type alias Routes = Dict.Dict String Route
 
 routes: Routes
 routes =
-    let addRoute url view seq routes =
-        Dict.insert url (Route view url seq) routes
+    let (:->) url (view, seq) = (url, Route view url seq)
     in
-        Dict.empty
-            |> addRoute "/" Views.Home.view 0
-            |> addRoute "/index.html" Views.Home.view 0
-            |> addRoute "/about.html" Views.About.view 10
-            |> addRoute "/posts.html" Views.Posts.view 20
-            |> addRoute "/projects.html" Views.Projects.view 30
+        Dict.fromList
+            [ "/"              :-> (Views.Home.view, 0)
+            , "/index.html"    :-> (Views.Home.view, 0)
+            , "/about.html"    :-> (Views.About.view, 10)
+            , "/posts.html"    :-> (Views.Posts.view, 20)
+            , "/projects.html" :-> (Views.Projects.view, 30)
+            ]
 
-(:->) = (,)
 
 getRoute: String -> Route
 getRoute url =
