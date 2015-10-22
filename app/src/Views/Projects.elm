@@ -3,16 +3,13 @@ module Views.Projects where
 import Html exposing (Html, text, h1, div, p, h2, ul, li)
 import UI
 
+import Models.Projects exposing (Project, projects)
+
 view: UI.View
 view =
     { content = \_ -> UI.genericContent "Projects" content UI.footer
     , fullScreen = False
     }
-
-projects : List Project
-projects =
-    [ moebius ]
-
 
 content: List Html
 content =
@@ -42,12 +39,6 @@ content =
 
 
 
-type alias Project =
-    { name: String
-    , repo: String
-    , description: List String
-    }
-
 renderProject: Project -> List Html
 renderProject project =
     let
@@ -60,13 +51,3 @@ renderProject project =
     in
         [title, subtitle] ++ content
 
--- projects
-moebius: Project
-moebius =
-    { name = "Moebius"
-    , repo = "https://github.com/gdeb/moebius"
-    , description =
-        [ "This is an experiment in a single page application. The code of this website is actually the javascript compiled by this project."
-        , "I'll develop more later on why this is interesting"
-        ]
-    }
