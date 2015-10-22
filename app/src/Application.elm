@@ -11,7 +11,7 @@ import Common.Components
 
 
 duration: Float
-duration = Time.second*0.5
+duration = Time.second*0.4
 
 
 -- model
@@ -67,9 +67,10 @@ update action model =
             ({ model | context <- context }, Effects.none)
 
         StartAnimation route clockTime ->
-            let direction = if route.sequence > model.route.sequence
-                        then Down
-                        else Up
+            let direction =
+                if route.sequence > model.route.sequence
+                    then Down
+                    else Up
 
                 animation =
                     { prevClockTime = clockTime
@@ -82,18 +83,25 @@ update action model =
 
         Tick clockTime ->
             case model.animation of
-                Nothing -> (model, Effects.none)
                 Just animation ->
-                    let newElapsedTime =
-                        animation.elapsedTime + clockTime - animation.prevClockTime
-                    in
-                        if newElapsedTime > duration then
-                            ( { model | route <- animation.nextRoute, animation <- Nothing }, Effects.none)
-                        else
-                            let animation' =
-                                    { animation | elapsedTime <- newElapsedTime, prevClockTime <- clockTime }
-                            in
-                                ({ model | animation <- Just animation' }, Effects.tick Tick)
+                    case (tick animation clockTime) of
+                        Just animation' ->
+                            ({ model | animation <- Just animation' }, Effects.tick Tick)
+                        Nothing ->
+                            ( { model | route <- animation.nextRoute
+                                      , animation <- Nothing }, Effects.none)
+
+                Nothing -> (model, Effects.none)
+
+
+tick: AnimationState -> Time -> Maybe AnimationState
+tick animation t =
+    let t' = animation.elapsedTime + t - animation.prevClockTime
+    in
+        if t' > duration then
+            Nothing
+        else
+            Just { animation | elapsedTime <- t' , prevClockTime <- t }
 
 
 -- view
@@ -107,12 +115,6 @@ view address model =
                 []
             else
                 [Common.Components.sidebar model.route.url]
-
-        renderContent margin url content' =
-            let style' =
-                if margin == 0 then [] else [("margin-top", toString margin ++ "px"), ("position", "fixed")]
-            in
-                div [ class "main-content", style style', key url ] content'
     in
         case model.animation of
             Nothing ->
@@ -125,11 +127,12 @@ view address model =
                             (sidebar ++ [renderContent 0 model.route.url content])
 
             Just animation ->
-                let nextContent =
-                        animation.nextRoute.view.content model.context
+                let nextRoute = animation.nextRoute
+
+                    nextContent = nextRoute.view.content model.context
 
                     alpha =
-                        round <| ease Easing.easeInOutExpo float 0 (toFloat model.context.height) duration animation.elapsedTime
+                        computeMargin model.context.height animation.elapsedTime
 
                     dir =
                         if animation.direction == Down then -1 else 1
@@ -142,6 +145,20 @@ view address model =
                             div [ class "desktop" ]
                                 (sidebar ++
                                     [ renderContent (dir * alpha) model.route.url content
-                                    , renderContent (dir*(alpha - model.context.height)) animation.nextRoute.url nextContent
+                                    , renderContent (dir*(alpha - model.context.height)) nextRoute.url nextContent
                                     ])
 
+
+renderContent : Int -> String -> List Html -> Html
+renderContent margin url content' =
+    let style' =
+        if margin == 0 then [] else [("margin-top", toString margin ++ "px"), ("position", "fixed")]
+    in
+        div [ class "main-content", style style', key url ] content'
+
+
+computeMargin : Int -> Time -> Int
+computeMargin height time =
+    time
+        |> ease Easing.easeInOutExpo float 0 (toFloat height) duration
+        |> round
