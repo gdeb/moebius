@@ -14,3 +14,11 @@ type alias View =
     { content: Context -> List Html
     , fullScreen: Bool
     }
+
+
+type alias Route =
+    { view: View
+    , url: String
+    , sequence: Int
+    }
+
