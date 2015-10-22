@@ -15,8 +15,7 @@ import Routing exposing (Route)
 
 app: StartApp.App Model
 app =
-    let
-        paths = Signal.map UpdateRoute Routing.currentRoute
+    let paths = Signal.map UpdateRoute Routing.currentRoute
         uis = Signal.map UpdateContext UI.current
     in
         StartApp.start
@@ -101,12 +100,9 @@ update action model =
             ({ model | context <- context }, Effects.none)
 
         StartAnimation route clockTime ->
-            let
-                direction =
-                    if route.sequence > model.route.sequence then
-                        Down
-                    else
-                        Up
+            let direction = if route.sequence > model.route.sequence
+                        then Down
+                        else Up
 
                 animation =
                     { prevClockTime = clockTime
@@ -127,8 +123,7 @@ update action model =
                         if newElapsedTime > duration then
                             ( { model | route <- animation.nextRoute, animation <- Nothing }, Effects.none)
                         else
-                            let
-                                animation' =
+                            let animation' =
                                     { animation | elapsedTime <- newElapsedTime, prevClockTime <- clockTime }
                             in
                                 ({ model | animation <- Just animation' }, Effects.tick Tick)
@@ -137,8 +132,7 @@ update action model =
 -- view
 view : Signal.Address Action -> Model -> Html
 view address model =
-    let
-        content =
+    let content =
             model.route.view.content model.context
 
         sidebar =
@@ -147,9 +141,9 @@ view address model =
             else
                 [UI.sidebar model.route.url]
 
-        render margin url content' =
-            let
-                style' = if margin == 0 then [] else [("margin-top", toString margin ++ "px")]
+        renderContent margin url content' =
+            let style' =
+                if margin == 0 then [] else [("margin-top", toString margin ++ "px"), ("position", "fixed")]
             in
                 div [ class "main-content", style style', key url ] content'
     in
@@ -161,20 +155,17 @@ view address model =
 
                     UI.Desktop ->
                         div [ class "desktop" ]
-                            (sidebar ++ [render 0 model.route.url content])
+                            (sidebar ++ [renderContent 0 model.route.url content])
 
             Just animation ->
-                let
-                    nextContent =
+                let nextContent =
                         animation.nextRoute.view.content model.context
 
                     alpha =
                         round <| ease Easing.easeInOutExpo float 0 (toFloat model.context.height) duration animation.elapsedTime
 
                     dir =
-                        case animation.direction of
-                            Down -> -1
-                            Up -> 1
+                        if animation.direction == Down then -1 else 1
                 in
                     case model.context.layout of
                         UI.Mobile ->
@@ -182,8 +173,8 @@ view address model =
 
                         UI.Desktop ->
                             div [ class "desktop" ]
-                                (sidebar ++ 
-                                    [ render (dir * alpha) model.route.url content
-                                    , render (dir*(alpha - model.context.height)) animation.nextRoute.url nextContent
+                                (sidebar ++
+                                    [ renderContent (dir * alpha) model.route.url content
+                                    , renderContent (dir*(alpha - model.context.height)) animation.nextRoute.url nextContent
                                     ])
 
