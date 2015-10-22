@@ -1,15 +1,15 @@
 module Views.Posts where
 
 import Html exposing (Html, text, h1, h2, h3, div)
-import UI
-import Date exposing (Date)
+import Common.Types exposing (View)
 import Date.Format exposing (format)
 
 import Models.Posts exposing (Post, posts)
+import Common.Components exposing (genericContent, footer)
 
-view: UI.View
+view: View
 view =
-    { content = \_ -> UI.genericContent "Posts" content UI.footer
+    { content = \_ -> genericContent "Posts" content footer
     , fullScreen = False
     }
 

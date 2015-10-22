@@ -2,9 +2,8 @@ module Routing where
 
 import Dict exposing (insert)
 import History
-import Task
 
-import UI
+import Common.Types exposing (View)
 
 import Views.About
 import Views.Home
@@ -13,7 +12,7 @@ import Views.Projects
 import Views.Undefined
 
 type alias Route =
-    { view: UI.View
+    { view: View
     , url: String
     , sequence: Int
     }

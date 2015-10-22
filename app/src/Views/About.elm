@@ -3,11 +3,12 @@ module Views.About where
 import Html exposing (Html, text, div, h1, h2, p, li, ul, a)
 import Html.Attributes exposing (href)
 
-import UI exposing (View)
+import Common.Types exposing (View)
+import Common.Components exposing (genericContent, footer)
 
-view: UI.View
+view: View
 view =
-    { content = \_ -> UI.genericContent "About" content UI.footer
+    { content = \_ -> genericContent "About" content footer
     , fullScreen = False
     }
 

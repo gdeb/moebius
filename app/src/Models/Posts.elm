@@ -18,6 +18,7 @@ posts =
 
 -- posts
 
+test1: Post
 test1 =
     { title = "A test post"
     , subtitle = "Small subtitle to highlight important stuff"

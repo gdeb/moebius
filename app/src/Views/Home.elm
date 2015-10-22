@@ -1,11 +1,12 @@
 module Views.Home where
 
 import Html exposing (Html, text, h1, p, div, h2, ul, li)
-import UI
+import Common.Types exposing (View)
+import Common.Components exposing (genericContent, footer)
 
-view: UI.View
+view: View
 view =
-    { content = \_ -> UI.genericContent "Home" content UI.footer
+    { content = \_ -> genericContent "Home" content footer
     , fullScreen = False
     }
 

@@ -1,13 +1,14 @@
 module Views.Projects where
 
 import Html exposing (Html, text, h1, div, p, h2, ul, li)
-import UI
+import Common.Types exposing (View)
 
 import Models.Projects exposing (Project, projects)
+import Common.Components exposing (genericContent, footer)
 
-view: UI.View
+view: View
 view =
-    { content = \_ -> UI.genericContent "Projects" content UI.footer
+    { content = \_ -> genericContent "Projects" content footer
     , fullScreen = False
     }
 

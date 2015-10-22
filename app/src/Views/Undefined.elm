@@ -1,9 +1,12 @@
 module Views.Undefined where
 
 import Html exposing (Html, text, h1, div, p, button)
-import UI exposing (linkTo)
+import Common.Utils exposing (linkTo)
 
-view: UI.View
+import Common.Types exposing (Context)
+import Common.Types exposing (View)
+
+view: View
 view =
     { content = content
     , fullScreen = True
@@ -11,7 +14,7 @@ view =
 
 
 -- projects
-content: UI.Context -> List Html
+content: Context -> List Html
 content context =
     [ h1 [] [text "Wrong url"]
     , p [] [ text """

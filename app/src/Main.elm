@@ -7,16 +7,20 @@ import Effects exposing (Effects, Never)
 import StartApp as StartApp
 import Time exposing (Time)
 import Easing exposing (ease, float)
+import Window
 
-import UI
 import Routing exposing (Route)
+import Common.Mailboxes exposing (pathChangeMailbox)
+import Common.Types exposing (..)
+import Common.Components
+
 
 -- main
 
 app: StartApp.App Model
 app =
     let paths = Signal.map UpdateRoute Routing.currentRoute
-        uis = Signal.map UpdateContext UI.current
+        uis = Signal.map UpdateContext current
     in
         StartApp.start
             { init = init
@@ -41,13 +45,13 @@ port tasks : Signal (Task Never ())
 port tasks = app.tasks
 
 port runTask : Signal (Task error ())
-port runTask = UI.pathSignal
+port runTask = pathChangeMailbox.signal
 
 
 -- model
 type alias Model =
     { route: Routing.Route
-    , context: UI.Context
+    , context: Context
     , animation: Maybe AnimationState
     }
 
@@ -61,12 +65,26 @@ type alias AnimationState =
     , direction: Direction
     }
 
+getContext: (Int, Int) -> Context
+getContext (width, height) =
+   { layout = if width < 1000 then Mobile else Desktop
+   , width = width
+   , height = height
+   }
+
+current: Signal Context
+current =
+    Window.dimensions
+        |> Signal.map getContext
+
+
+
 
 init: (Model, Effects Action)
 init =
     let model =
         { route = Routing.getRoute initialPath
-        , context = UI.getContext (initialWidth, initialHeight)
+        , context = getContext (initialWidth, initialHeight)
         , animation = Nothing
         }
     in
@@ -76,7 +94,7 @@ init =
 
 type Action
     = UpdateRoute Routing.Route
-    | UpdateContext UI.Context
+    | UpdateContext Context
     | StartAnimation Route Time
     | Tick Time
 
@@ -136,10 +154,10 @@ view address model =
             model.route.view.content model.context
 
         sidebar =
-            if model.context.layout == UI.Mobile || model.route.view.fullScreen then
+            if model.context.layout == Mobile || model.route.view.fullScreen then
                 []
             else
-                [UI.sidebar model.route.url]
+                [Common.Components.sidebar model.route.url]
 
         renderContent margin url content' =
             let style' =
@@ -150,10 +168,10 @@ view address model =
         case model.animation of
             Nothing ->
                 case model.context.layout of
-                    UI.Mobile ->
+                    Mobile ->
                         div [class "mobile" ] content
 
-                    UI.Desktop ->
+                    Desktop ->
                         div [ class "desktop" ]
                             (sidebar ++ [renderContent 0 model.route.url content])
 
@@ -168,10 +186,10 @@ view address model =
                         if animation.direction == Down then -1 else 1
                 in
                     case model.context.layout of
-                        UI.Mobile ->
+                        Mobile ->
                             div [class "mobile" ] content
 
-                        UI.Desktop ->
+                        Desktop ->
                             div [ class "desktop" ]
                                 (sidebar ++
                                     [ renderContent (dir * alpha) model.route.url content

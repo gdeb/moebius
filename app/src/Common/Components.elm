@@ -1,38 +1,9 @@
-module UI where
+module Common.Components where
 
-import Html exposing (Html, ul, li, div, text, a)
+import Html exposing (..)
 import Html.Attributes exposing (class, href)
-import Html.Events
-import History
 
-import Window
-import Task
-
-type Layout = Desktop | Mobile
-
-type alias Context =
-    { layout: Layout
-    , width: Int
-    , height: Int
-    }
-
-type alias View =
-    { content: Context -> List Html
-    , fullScreen: Bool
-    }
-
-getContext: (Int, Int) -> Context
-getContext (width, height) =
-   { layout = if width < 1000 then Mobile else Desktop
-   , width = width
-   , height = height
-   }
-
-current: Signal Context
-current =
-    Window.dimensions
-        |> Signal.map getContext
-
+import Common.Utils exposing (linkTo)
 
 
 genericContent: String -> List Html -> List Html -> List Html
@@ -73,17 +44,4 @@ sidebar url =
                 ]
             ]
 
--- utility
-pathChangeMailbox : Signal.Mailbox (Task.Task error ())
-pathChangeMailbox = Signal.mailbox (Task.succeed ())
-
-pathSignal : Signal (Task.Task a ())
-pathSignal = pathChangeMailbox.signal
-
-pathAddress : Signal.Address (Task.Task a ())
-pathAddress = pathChangeMailbox.address
-
-linkTo: String -> Html.Attribute
-linkTo url =
-    History.setPath url |> Html.Events.onClick pathAddress
 
