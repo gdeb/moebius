@@ -6,9 +6,9 @@ import Time exposing (Time)
 import Easing exposing (ease, float)
 import Effects exposing (Effects, Never)
 
+import Animation exposing (..)
 import Common.Types exposing (..)
 import Common.Components
-
 
 duration: Float
 duration = Time.second*0.4
@@ -18,96 +18,92 @@ duration = Time.second*0.4
 type alias Model =
     { route: Route
     , context: Context
-    , animation: Maybe AnimationState
+    , animation: Maybe (Animation Description)
     }
 
 
-type Direction = Up | Down
+type Description = RouteTransition Route
 
-
-type alias AnimationState =
-    { prevClockTime : Time
-    , elapsedTime: Time
-    , nextRoute: Route
-    , direction: Direction
-    }
 
 
 init: Route -> Context -> (Model, Effects Action)
 init initRoute initContext =
-    let model =
+    noFx
         { route = initRoute
         , context = initContext
         , animation = Nothing
         }
-    in
-        (model, Effects.none)
 
 -- update
 
 type Action
     = UpdateRoute Route
     | UpdateContext Context
-    | StartAnimation Route Time
+    | StartAnimation Description Time
     | Tick Time
+
 
 
 update: Action -> Model -> (Model, Effects Action)
 update action model =
     case action of
         UpdateRoute route ->
-            if route.url == model.route.url || not (model.animation == Nothing) then
-                (model, Effects.none)
+            if route.url == model.route.url then
+                noFx model
+
+            else if not (model.animation == Nothing) then
+                noFx model
+
             else if route.view.fullScreen || model.route.view.fullScreen then
-                ({ model | route <- route}, Effects.none)
+                noFx { model | route <- route}
+
             else
-                (model, Effects.tick (StartAnimation route))
+                withFx (StartAnimation (RouteTransition route)) model
 
         UpdateContext context ->
-            ({ model | context <- context }, Effects.none)
+            noFx { model | context <- context }
 
-        StartAnimation route clockTime ->
-            let direction =
-                if route.sequence > model.route.sequence
-                    then Down
-                    else Up
-
-                animation =
-                    { prevClockTime = clockTime
-                    , elapsedTime = 0
-                    , nextRoute = route
-                    , direction = direction
-                    }
+        StartAnimation description clockTime ->
+            let
+                animation = Animation clockTime 0 duration description
             in
-                ({ model | animation <- Just animation }, Effects.tick Tick)
+                withFx Tick { model | animation <- Just animation }
 
         Tick clockTime ->
             case model.animation of
                 Just animation ->
-                    case (tick animation clockTime) of
-                        Just animation' ->
-                            ({ model | animation <- Just animation' }, Effects.tick Tick)
-                        Nothing ->
-                            ( { model | route <- animation.nextRoute
-                                      , animation <- Nothing }, Effects.none)
+                    let
+                        animation' = tick animation clockTime
+                    in
+                        { model | animation <- animation' }
+                            |> updateModel animation.description
+                            |> dispatchFx Tick
 
-                Nothing -> (model, Effects.none)
+                Nothing ->
+                    noFx model
 
 
-tick: AnimationState -> Time -> Maybe AnimationState
-tick animation t =
-    let t' = animation.elapsedTime + t - animation.prevClockTime
+
+updateModel : Description -> Model -> Model
+updateModel description model =
+    let
+        ratio = getRatio model.animation
     in
-        if t' > duration then
-            Nothing
-        else
-            Just { animation | elapsedTime <- t' , prevClockTime <- t }
+        case description of
+            RouteTransition route ->
+                if ratio < 1 then
+                    model
+
+                else
+                    { model | route <- route }
+
 
 
 -- view
 view : Signal.Address Action -> Model -> Html
 view address model =
-    let content =
+    let
+        content =
             model.route.view.content model.context
 
         sidebar =
@@ -117,6 +113,31 @@ view address model =
                 [Common.Components.sidebar model.route.url]
     in
         case model.animation of
+            Just animation ->
+                case animation.description of
+                    RouteTransition route ->
+                        let
+                            nextContent = route.view.content model.context
+                            alpha =
+                                computeMargin model.context.height animation.elapsedTime
+
+                            dir =
+                                if route.sequence < model.route.sequence then
+                                    1
+                                else
+                                    -1
+                        in
+                            case model.context.layout of
+                                Mobile ->
+                                    div [class "mobile" ] content
+
+                                Desktop ->
+                                    div [ class "desktop" ]
+                                        (sidebar ++
+                                            [ renderContent (dir * alpha) model.route.url content
+                                            , renderContent (dir*(alpha - model.context.height)) route.url nextContent
+                                            ])
+
             Nothing ->
                 case model.context.layout of
                     Mobile ->
@@ -125,28 +146,6 @@ view address model =
                     Desktop ->
                         div [ class "desktop" ]
                             (sidebar ++ [renderContent 0 model.route.url content])
-
-            Just animation ->
-                let nextRoute = animation.nextRoute
-
-                    nextContent = nextRoute.view.content model.context
-
-                    alpha =
-                        computeMargin model.context.height animation.elapsedTime
-
-                    dir =
-                        if animation.direction == Down then -1 else 1
-                in
-                    case model.context.layout of
-                        Mobile ->
-                            div [class "mobile" ] content
-
-                        Desktop ->
-                            div [ class "desktop" ]
-                                (sidebar ++
-                                    [ renderContent (dir * alpha) model.route.url content
-                                    , renderContent (dir*(alpha - model.context.height)) nextRoute.url nextContent
-                                    ])
 
 
 renderContent : Int -> String -> List Html -> Html
