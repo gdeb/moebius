@@ -2,6 +2,8 @@ module Application where
 
 import Html exposing (..)
 import Html.Attributes exposing (class, style, key)
+import Html.Events exposing (onClick)
+
 import Time exposing (Time)
 import Easing exposing (ease, float)
 import Effects exposing (Effects, Never)
@@ -19,10 +21,15 @@ type alias Model =
     { route: Route
     , context: Context
     , animation: Maybe (Animation Description)
+    , drawerMaxHeight: Int
     }
 
 
-type Description = RouteTransition Route
+
+type Description
+    = RouteTransition Route
+    | OpenDrawer
+    | CloseDrawer
 
 
 
@@ -32,6 +39,7 @@ init initRoute initContext =
         { route = initRoute
         , context = initContext
         , animation = Nothing
+        , drawerMaxHeight = 0
         }
 
 -- update
@@ -40,6 +48,7 @@ type Action
     = UpdateRoute Route
     | UpdateContext Context
     | StartAnimation Description Time
+    | ToggleDrawer
     | Tick Time
 
 
@@ -57,11 +66,23 @@ update action model =
             else if route.view.fullScreen || model.route.view.fullScreen then
                 noFx { model | route <- route}
 
+            else if model.context.layout == Mobile then
+                noFx { model | route <- route, drawerMaxHeight <- 0 }
+
             else
                 withFx (StartAnimation (RouteTransition route)) model
 
         UpdateContext context ->
             noFx { model | context <- context }
+
+        ToggleDrawer ->
+            let
+                animation = if model.drawerMaxHeight == 0 then
+                    OpenDrawer
+                else
+                    CloseDrawer
+            in
+                withFx (StartAnimation animation) model
 
         StartAnimation description clockTime ->
             let
@@ -96,6 +117,20 @@ updateModel description model =
 
                 else
                     { model | route <- route }
+
+            OpenDrawer ->
+                let
+                    newHeight =
+                        ease Easing.easeOutBounce float 0 200 1 ratio
+                in
+                    { model | drawerMaxHeight <- (round newHeight) }
+
+            CloseDrawer ->
+                let
+                    newHeight =
+                        ease Easing.easeInOutExpo float 0 200 1 (1 - ratio)
+                in
+                    { model | drawerMaxHeight <- (round newHeight) }
 
 
 
@@ -138,15 +173,25 @@ view address model =
                                             , renderContent (dir*(alpha - model.context.height)) route.url nextContent
                                             ])
 
+                    OpenDrawer ->
+                        basicRender address model sidebar content
+
+                    CloseDrawer ->
+                        basicRender address model sidebar content
+
+
             Nothing ->
-                case model.context.layout of
-                    Mobile ->
-                        div [class "mobile" ] content
+                basicRender address model sidebar content
 
-                    Desktop ->
-                        div [ class "desktop" ]
-                            (sidebar ++ [renderContent 0 model.route.url content])
 
+basicRender address model sidebar content =
+    case model.context.layout of
+        Mobile ->
+            div [class "mobile" ] ((Common.Components.navbar (onClick address ToggleDrawer) model.route.view.title) :: (Common.Components.drawer model.drawerMaxHeight) :: content)
+
+        Desktop ->
+            div [ class "desktop" ]
+                (sidebar ++ [renderContent 0 model.route.url content])
 
 renderContent : Int -> String -> List Html -> Html
 renderContent margin url content' =
