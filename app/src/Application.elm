@@ -11,6 +11,7 @@ import Effects exposing (Effects, Never)
 import Animation exposing (..)
 import Core exposing (..)
 import Components
+import Utils
 
 duration: Float
 duration = Time.second*0.4
@@ -117,15 +118,14 @@ updateModel description model =
                     newHeight =
                         ease Easing.easeOutBounce float 0 200 1 ratio
                 in
-                    { model | drawerMaxHeight <- (round newHeight) }
+                    { model | drawerMaxHeight <- round newHeight }
 
             CloseDrawer ->
                 let
                     newHeight =
                         ease Easing.easeInOutExpo float 0 200 1 (1 - ratio)
                 in
-                    { model | drawerMaxHeight <- (round newHeight) }
-
+                    { model | drawerMaxHeight <- round newHeight }
 
 
 -- view
@@ -134,70 +134,84 @@ view address model =
     let
         content =
             model.route.view.content model.context
+    in
+        case model.context.layout of
+            Mobile ->
+                renderMobile address model content
 
+            Desktop ->
+                renderDesktop address model content
+
+
+renderMobile : Signal.Address Action -> Model -> List Html -> Html
+renderMobile address model content =
+    let
+        navbar = Components.navbar (onClick address ToggleDrawer) model.route.view.title
+
+        drawer = if model.drawerMaxHeight == 0 then
+                []
+            else
+                [ Components.drawer model.drawerMaxHeight ]
+
+        content' =  navbar :: (drawer ++ content)
+    in
+        div [class "mobile" ] content'
+
+
+getInfo : Animation Description -> Maybe (Route, Time)
+getInfo animation =
+    case animation.description of
+        RouteTransition route ->
+            Just (route, animation.elapsedTime)
+        otherwise ->
+            Nothing
+
+
+renderDesktop : Signal.Address Action -> Model -> List Html -> Html
+renderDesktop address model content =
+    let
         sidebar =
-            if model.context.layout == Mobile || model.route.view.fullScreen then
+            if model.route.view.fullScreen then
                 []
             else
                 [Components.sidebar model.route.url]
+
+        content' =
+            case (Maybe.andThen model.animation getInfo) of
+                Just (route, elapsedTime) ->
+                    let
+                        nextContent = route.view.content model.context
+
+                        height = toFloat model.context.height
+
+                        alpha =
+                            elapsedTime
+                                |> ease Easing.easeInOutExpo float 0 height duration
+                                |> round
+
+                        dir =
+                            Utils.sign (model.route.sequence - route.sequence)
+
+                    in
+                        [ renderContent (dir * alpha) model.route.url content
+                        , renderContent (dir*(alpha - model.context.height)) route.url nextContent
+                        ]
+
+                Nothing ->
+                    [renderContent 0 model.route.url content]
+
     in
-        case model.animation of
-            Just animation ->
-                case animation.description of
-                    RouteTransition route ->
-                        let
-                            nextContent = route.view.content model.context
-                            alpha =
-                                computeMargin model.context.height animation.elapsedTime
+        div [ class "desktop" ] (sidebar ++ content')
 
-                            dir =
-                                if route.sequence < model.route.sequence then
-                                    1
-                                else
-                                    -1
-                        in
-                            case model.context.layout of
-                                Mobile ->
-                                    div [class "mobile" ] content
-
-                                Desktop ->
-                                    div [ class "desktop" ]
-                                        (sidebar ++
-                                            [ renderContent (dir * alpha) model.route.url content
-                                            , renderContent (dir*(alpha - model.context.height)) route.url nextContent
-                                            ])
-
-                    OpenDrawer ->
-                        basicRender address model sidebar content
-
-                    CloseDrawer ->
-                        basicRender address model sidebar content
-
-
-            Nothing ->
-                basicRender address model sidebar content
-
-
-basicRender : Signal.Address Action -> Model -> List Html -> List Html -> Html
-basicRender address model sidebar content =
-    case model.context.layout of
-        Mobile ->
-            div [class "mobile" ] ((Components.navbar (onClick address ToggleDrawer) model.route.view.title) :: (Components.drawer model.drawerMaxHeight) :: content)
-
-        Desktop ->
-            div [ class "desktop" ]
-                (sidebar ++ [renderContent 0 model.route.url content])
 
 renderContent : Int -> String -> List Html -> Html
 renderContent margin url content' =
     let style' =
-        if margin == 0 then [] else [("margin-top", toString margin ++ "px"), ("position", "fixed")]
+        if margin == 0 then
+            []
+        else
+            [("margin-top", toString margin ++ "px"), ("position", "fixed")]
     in
         div [ class "main-content", style style', key url ] content'
 
 
-computeMargin : Int -> Time -> Int
-computeMargin height time =
-    time
-        |> ease Easing.easeInOutExpo float 0 (toFloat height) duration
-        |> round
