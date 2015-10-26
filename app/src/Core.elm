@@ -1,5 +1,6 @@
-module Common.Types where
+module Core where
 
+import Task
 import Html exposing (Html)
 
 type Layout = Desktop | Mobile
@@ -22,4 +23,8 @@ type alias Route =
     , url: String
     , sequence: Int
     }
+
+
+pathChangeMailbox : Signal.Mailbox (Task.Task error ())
+pathChangeMailbox = Signal.mailbox (Task.succeed ())
 

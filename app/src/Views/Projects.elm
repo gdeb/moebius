@@ -1,10 +1,10 @@
 module Views.Projects where
 
 import Html exposing (Html, text, h1, div, p, h2, ul, li)
-import Common.Types exposing (View)
+import Core exposing (View)
 
 import Models.Projects exposing (Project, projects)
-import Common.Components exposing (genericContent, footer)
+import Components exposing (genericContent, footer)
 
 view: View
 view =

@@ -9,8 +9,8 @@ import Easing exposing (ease, float)
 import Effects exposing (Effects, Never)
 
 import Animation exposing (..)
-import Common.Types exposing (..)
-import Common.Components
+import Core exposing (..)
+import Components
 
 duration: Float
 duration = Time.second*0.4
@@ -76,13 +76,10 @@ update action model =
             noFx { model | context <- context }
 
         ToggleDrawer ->
-            let
-                animation = if model.drawerMaxHeight == 0 then
-                    OpenDrawer
-                else
-                    CloseDrawer
-            in
-                withFx (StartAnimation animation) model
+            if model.drawerMaxHeight == 0 then
+                withFx (StartAnimation OpenDrawer) model
+            else
+                withFx (StartAnimation CloseDrawer) model
 
         StartAnimation description clockTime ->
             let
@@ -93,12 +90,9 @@ update action model =
         Tick clockTime ->
             case model.animation of
                 Just animation ->
-                    let
-                        animation' = tick animation clockTime
-                    in
-                        { model | animation <- animation' }
-                            |> updateModel animation.description
-                            |> dispatchFx Tick
+                    { model | animation <- tick animation clockTime }
+                        |> updateModel animation.description
+                        |> dispatchFx Tick
 
                 Nothing ->
                     noFx model
@@ -145,7 +139,7 @@ view address model =
             if model.context.layout == Mobile || model.route.view.fullScreen then
                 []
             else
-                [Common.Components.sidebar model.route.url]
+                [Components.sidebar model.route.url]
     in
         case model.animation of
             Just animation ->
@@ -184,10 +178,11 @@ view address model =
                 basicRender address model sidebar content
 
 
+basicRender : Signal.Address Action -> Model -> List Html -> List Html -> Html
 basicRender address model sidebar content =
     case model.context.layout of
         Mobile ->
-            div [class "mobile" ] ((Common.Components.navbar (onClick address ToggleDrawer) model.route.view.title) :: (Common.Components.drawer model.drawerMaxHeight) :: content)
+            div [class "mobile" ] ((Components.navbar (onClick address ToggleDrawer) model.route.view.title) :: (Components.drawer model.drawerMaxHeight) :: content)
 
         Desktop ->
             div [ class "desktop" ]

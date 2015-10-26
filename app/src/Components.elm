@@ -1,21 +1,21 @@
-module Common.Components where
+module Components where
 
 import Html exposing (..)
 import Html.Attributes exposing (class, href, style)
 
-import Common.Utils exposing (linkTo)
-import Common.Types exposing (Context, Layout)
+import Utils exposing (linkTo)
+import Core exposing (Context, Layout)
 
 
 genericContent: String -> List Html -> List Html -> Context -> List Html
 genericContent title content footer context =
     case context.layout of
-        Common.Types.Mobile ->
+        Core.Mobile ->
             [ div [ class "content" ] content
             , div [ class "footer" ] footer
             ]
 
-        Common.Types.Desktop ->
+        Core.Desktop ->
             [ div [ class "header" ] (header title)
             , div [ class "content" ] content
             , div [ class "footer" ] footer

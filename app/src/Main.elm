@@ -9,8 +9,7 @@ import Task exposing (Task)
 import Window
 
 import Application
-import Common.Mailboxes exposing (pathChangeMailbox)
-import Common.Types exposing (..)
+import Core exposing (..)
 import Views.About
 import Views.Home
 import Views.Posts

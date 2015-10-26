@@ -1,11 +1,11 @@
 module Views.Posts where
 
 import Html exposing (Html, text, h1, h2, h3, div)
-import Common.Types exposing (View)
+import Core exposing (View)
 import Date.Format exposing (format)
 
 import Models.Posts exposing (Post, posts)
-import Common.Components exposing (genericContent, footer)
+import Components exposing (genericContent, footer)
 
 view: View
 view =

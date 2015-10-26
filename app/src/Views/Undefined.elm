@@ -1,10 +1,9 @@
 module Views.Undefined where
 
 import Html exposing (Html, text, h1, div, p, button)
-import Common.Utils exposing (linkTo)
+import Utils exposing (linkTo)
 
-import Common.Types exposing (Context)
-import Common.Types exposing (View)
+import Core exposing (Context, View)
 
 view: View
 view =

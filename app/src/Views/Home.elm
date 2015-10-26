@@ -1,8 +1,8 @@
 module Views.Home where
 
 import Html exposing (Html, text, h1, p, div, h2, ul, li)
-import Common.Types exposing (View)
-import Common.Components exposing (genericContent, footer)
+import Core exposing (View)
+import Components exposing (genericContent, footer)
 
 view: View
 view =

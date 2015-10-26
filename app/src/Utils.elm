@@ -1,10 +1,10 @@
-module Common.Utils where
+module Utils where
 
 import Html
 import Html.Events
 import History
 
-import Common.Mailboxes exposing (pathChangeMailbox)
+import Core exposing (pathChangeMailbox)
 
 
 linkTo: String -> Html.Attribute

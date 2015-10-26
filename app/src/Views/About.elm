@@ -3,8 +3,8 @@ module Views.About where
 import Html exposing (Html, text, div, h1, h2, p, li, ul, a)
 import Html.Attributes exposing (href)
 
-import Common.Types exposing (View)
-import Common.Components exposing (genericContent, footer)
+import Core exposing (View)
+import Components exposing (genericContent, footer)
 
 view: View
 view =
