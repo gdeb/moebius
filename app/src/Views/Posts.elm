@@ -2,6 +2,7 @@ module Views.Posts where
 
 import Html exposing (Html, text, h1, h2, h3, div)
 import Core exposing (View)
+import Date
 import Date.Format exposing (format)
 
 import Models.Posts exposing (Post, posts)
@@ -33,5 +34,8 @@ renderPost post =
     in
         [title, subtitle, date] ++ post.content
 
-formatDate = format "%B %e, %Y"
+
+formatDate : Date.Date -> String
+formatDate =
+    format "%B %e, %Y"
 
