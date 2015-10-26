@@ -11,7 +11,8 @@ type alias Context =
     }
 
 type alias View =
-    { content: Context -> List Html
+    { title: String
+    , content: Context -> List Html
     , fullScreen: Bool
     }
 

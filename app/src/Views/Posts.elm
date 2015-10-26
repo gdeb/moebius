@@ -9,7 +9,8 @@ import Common.Components exposing (genericContent, footer)
 
 view: View
 view =
-    { content = \_ -> genericContent "Posts" content footer
+    { title = "Posts"
+    , content = genericContent "Posts" content footer
     , fullScreen = False
     }
 

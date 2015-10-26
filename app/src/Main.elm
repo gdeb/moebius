@@ -90,7 +90,7 @@ getRoute url =
 -- helpers
 getContext: (Int, Int) -> Context
 getContext (width, height) =
-   { layout = if width < 1000 then Mobile else Desktop
+   { layout = if width < 768 then Mobile else Desktop
    , width = width
    , height = height
    }

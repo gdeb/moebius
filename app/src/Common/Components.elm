@@ -1,17 +1,25 @@
 module Common.Components where
 
 import Html exposing (..)
-import Html.Attributes exposing (class, href)
+import Html.Attributes exposing (class, href, style)
 
 import Common.Utils exposing (linkTo)
+import Common.Types exposing (Context, Layout)
 
 
-genericContent: String -> List Html -> List Html -> List Html
-genericContent title content footer =
-    [ div [ class "header" ] (header title)
-    , div [ class "content" ] content
-    , div [ class "footer" ] footer
-    ]
+genericContent: String -> List Html -> List Html -> Context -> List Html
+genericContent title content footer context =
+    case context.layout of
+        Common.Types.Mobile ->
+            [ div [ class "content" ] content
+            , div [ class "footer" ] footer
+            ]
+
+        Common.Types.Desktop ->
+            [ div [ class "header" ] (header title)
+            , div [ class "content" ] content
+            , div [ class "footer" ] footer
+            ]
 
 
 header: String -> List Html
@@ -44,4 +52,18 @@ sidebar url =
                 ]
             ]
 
+navbar: Attribute -> String -> Html
+navbar onClick title =
+    div [class "navbar", onClick ]
+        [ div [class "icono-bars"] []
+        , text title
+        ]
 
+drawer: Int -> Html
+drawer maxHeight =
+    ul [ class "drawer", style [("max-height", (toString maxHeight) ++ "px")] ]
+       [ li [ linkTo "/" ] [ text "home" ]
+       , li [ linkTo "/about.html" ] [ text "about me" ]
+       , li [ linkTo "/posts.html" ] [ text "posts" ]
+       , li [ linkTo "/projects.html" ] [ text "projects" ]
+       ]

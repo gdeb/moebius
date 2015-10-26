@@ -8,7 +8,8 @@ import Common.Types exposing (View)
 
 view: View
 view =
-    { content = content
+    { title = "Bad URL"
+    , content = content
     , fullScreen = True
     }
 

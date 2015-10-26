@@ -14,7 +14,7 @@ body
     .content
         flex-grow: 1
 
-    .header, .footer
+    .navbar, .footer
         background-color: $main-color
         text-align: center
         color: white
@@ -22,6 +22,26 @@ body
         font-size: 22px
         display: flex
         align-items: center
+        cursor: pointer
+
+    .drawer
+        border-top: 1px solid $main-color - 20%
+        border-bottom: 1px solid $main-color - 20%
+        overflow-y: hidden
+        margin: 0
+        list-style-type: none
+        padding: 0
+        text-align: center
+        li
+            height: 50px
+            color: white
+            background-color: $main-color
+            font-size: 22px
+            line-height: 50px
+            cursor: pointer
+
+            &:hover
+                background-color: $main-color - 10%
 
 .desktop
     .sidebar
@@ -98,3 +118,27 @@ button
     border: 0px
     padding: 0.5em 1em
 
+
+[class*="icono-"]
+    display: inline-block
+    vertical-align: middle
+    position: relative
+    font-style: normal
+    text-align: left
+    text-indent: -9999px
+    direction: ltr
+
+[class*="icono-"]:before
+    content: ''
+    pointer-events: none
+
+[class*="icono-"]:after
+    content: ''
+    pointer-events: none
+
+.icono-bars
+    box-sizing: border-box
+    width: 20px
+    height: 2px
+    box-shadow: inset 0 0 0 32px, 0 -6px, 0 6px
+    margin: 16px 7px
