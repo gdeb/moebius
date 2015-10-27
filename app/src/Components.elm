@@ -59,11 +59,19 @@ navbar onClick title =
         , span [ class "title" ] [ text title ]
         ]
 
-drawer: Int -> Html
-drawer maxHeight =
-    ul [ class "drawer", style [("max-height", (toString maxHeight) ++ "px")] ]
-       [ li [ linkTo "/" ] [ text "home" ]
-       , li [ linkTo "/about.html" ] [ text "about me" ]
-       , li [ linkTo "/posts.html" ] [ text "posts" ]
-       , li [ linkTo "/projects.html" ] [ text "projects" ]
-       ]
+drawer: String -> Int -> Html
+drawer url maxHeight =
+    let
+        attrs url' =
+            if url' == url then [class "disabled"] else [linkTo url']
+
+        makeListItem url' descr =
+            li (attrs url') [ text descr ]
+    in
+        ul [ class "drawer", style [("max-height", (toString maxHeight) ++ "px")] ]
+           [ makeListItem "/" "home"
+           , makeListItem "/about.html" "about me"
+           , makeListItem "/posts.html" "posts"
+           , makeListItem "/projects.html" "projects"
+           ]
+

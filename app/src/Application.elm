@@ -140,7 +140,7 @@ renderMobile address model content =
         drawer = if model.drawerMaxHeight == 0 then
                 []
             else
-                [ Components.drawer model.drawerMaxHeight ]
+                [ Components.drawer model.route.url model.drawerMaxHeight ]
 
         content' =  navbar :: (drawer ++ content)
     in
