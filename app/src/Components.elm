@@ -54,9 +54,9 @@ sidebar url =
 
 navbar: Attribute -> String -> Html
 navbar onClick title =
-    div [class "navbar", onClick ]
-        [ div [class "icono-bars"] []
-        , text title
+    div [class "navbar" ]
+        [ span [ class "hamburger", onClick ] [ i [ class "icono-bars" ] [] ]
+        , span [ class "title" ] [ text title ]
         ]
 
 drawer: Int -> Html

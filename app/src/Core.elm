@@ -25,6 +25,9 @@ type alias Route =
     }
 
 
+type Direction = Up | Down
+
+
 pathChangeMailbox : Signal.Mailbox (Task.Task error ())
 pathChangeMailbox = Signal.mailbox (Task.succeed ())
 

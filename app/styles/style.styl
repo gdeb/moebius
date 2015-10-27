@@ -22,7 +22,17 @@ body
         font-size: 22px
         display: flex
         align-items: center
-        cursor: pointer
+
+        .hamburger
+            padding: 8px
+            cursor: pointer
+
+            &:hover
+                background-color: $main-color - 5%
+
+        .title
+            flex-grow: 1
+            margin-right: 50px
 
     .drawer
         border-top: 1px solid $main-color - 20%

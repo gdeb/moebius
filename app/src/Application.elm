@@ -1,20 +1,16 @@
 module Application where
 
+import Easing exposing (ease, float)
+import Effects exposing (Effects, Never)
 import Html exposing (..)
 import Html.Attributes exposing (class, style, key)
 import Html.Events exposing (onClick)
-
 import Time exposing (Time)
-import Easing exposing (ease, float)
-import Effects exposing (Effects, Never)
 
 import Animation exposing (..)
-import Core exposing (..)
 import Components
+import Core exposing (..)
 import Utils
-
-duration: Float
-duration = Time.second*0.4
 
 
 -- model
@@ -26,12 +22,9 @@ type alias Model =
     }
 
 
-
 type Description
     = RouteTransition Route
-    | OpenDrawer
-    | CloseDrawer
-
+    | ToggleDrawer Direction
 
 
 init: Route -> Context -> (Model, Effects Action)
@@ -43,15 +36,14 @@ init initRoute initContext =
         , drawerMaxHeight = 0
         }
 
--- update
 
+-- update
 type Action
     = UpdateRoute Route
     | UpdateContext Context
     | StartAnimation Description Time
-    | ToggleDrawer
+    | UpdateDrawer
     | Tick Time
-
 
 
 update: Action -> Model -> (Model, Effects Action)
@@ -76,14 +68,16 @@ update action model =
         UpdateContext context ->
             noFx { model | context <- context }
 
-        ToggleDrawer ->
+        UpdateDrawer ->
             if model.drawerMaxHeight == 0 then
-                withFx (StartAnimation OpenDrawer) model
+                withFx (StartAnimation (ToggleDrawer Down)) model
             else
-                withFx (StartAnimation CloseDrawer) model
+                withFx (StartAnimation (ToggleDrawer Up)) model
 
         StartAnimation description clockTime ->
             let
+                duration = 0.4 * Time.second
+
                 animation = Animation clockTime 0 duration description
             in
                 withFx Tick { model | animation <- Just animation }
@@ -92,16 +86,15 @@ update action model =
             case model.animation of
                 Just animation ->
                     { model | animation <- tick animation clockTime }
-                        |> updateModel animation.description
+                        |> animate animation.description
                         |> dispatchFx Tick
 
                 Nothing ->
                     noFx model
 
 
-
-updateModel : Description -> Model -> Model
-updateModel description model =
+animate : Description -> Model -> Model
+animate description model =
     let
         ratio = getRatio model.animation
     in
@@ -113,17 +106,13 @@ updateModel description model =
                 else
                     { model | route <- route }
 
-            OpenDrawer ->
+            ToggleDrawer direction ->
                 let
                     newHeight =
-                        ease Easing.easeOutBounce float 0 200 1 ratio
-                in
-                    { model | drawerMaxHeight <- round newHeight }
-
-            CloseDrawer ->
-                let
-                    newHeight =
-                        ease Easing.easeInOutExpo float 0 200 1 (1 - ratio)
+                        if direction == Down then
+                            ease Easing.easeOutBounce float 0 200 1 ratio
+                        else
+                            ease Easing.easeInOutExpo float 0 200 1 (1 - ratio)
                 in
                     { model | drawerMaxHeight <- round newHeight }
 
@@ -146,7 +135,7 @@ view address model =
 renderMobile : Signal.Address Action -> Model -> List Html -> Html
 renderMobile address model content =
     let
-        navbar = Components.navbar (onClick address ToggleDrawer) model.route.view.title
+        navbar = Components.navbar (onClick address UpdateDrawer) model.route.view.title
 
         drawer = if model.drawerMaxHeight == 0 then
                 []
@@ -158,11 +147,12 @@ renderMobile address model content =
         div [class "mobile" ] content'
 
 
-getInfo : Animation Description -> Maybe (Route, Time)
+getInfo : Animation Description -> Maybe (Route, Time, Time)
 getInfo animation =
     case animation.description of
         RouteTransition route ->
-            Just (route, animation.elapsedTime)
+            Just (route, animation.elapsedTime, animation.duration)
+
         otherwise ->
             Nothing
 
@@ -178,7 +168,7 @@ renderDesktop address model content =
 
         content' =
             case (Maybe.andThen model.animation getInfo) of
-                Just (route, elapsedTime) ->
+                Just (route, elapsedTime, duration) ->
                     let
                         nextContent = route.view.content model.context
 
