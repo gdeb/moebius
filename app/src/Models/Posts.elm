@@ -3,6 +3,8 @@ module Models.Posts where
 import Html exposing (Html, text, h1, h2, h3, div)
 import Date exposing (Date)
 
+import Utils exposing (unsafeReadDate)
+
 type alias Post =
     { title: String
     , subtitle: String
@@ -14,23 +16,41 @@ type alias Post =
 
 posts : List Post
 posts =
-    [ test1, test1, test1 ]
+    [ firstPost, test1, onResponsiveDesign ]
+        |> List.sortBy (Date.toTime << .date)
+        |> List.reverse
 
 -- posts
 
-test1: Post
+firstPost : Post
+firstPost =
+    { title = "First post"
+    , subtitle = "Introducing my github page"
+    , date = unsafeReadDate "10/27/2015"
+    , summary = [ "This post explains the motivation behind this page, and highlight some of its technical characteristics."]
+    , content = [ div [] [text "main content"], div [] [text "other stuff"] ]
+    }
+
+test1 : Post
 test1 =
     { title = "A test post"
     , subtitle = "Small subtitle to highlight important stuff"
-    , date = unsafeReadDate "10/19/2016"
+    , date = unsafeReadDate "10/29/2015"
     , summary = [ "summary. this is a paragraph", "and this is another"]
     , content = [ div [] [text "main content"], div [] [text "other stuff"] ]
     }
 
+onResponsiveDesign : Post
+onResponsiveDesign =
+    { title = "On responsive design"
+    , subtitle = "You don't need no media queries"
+    , date = unsafeReadDate "10/28/2015"
+    , summary =
+        [ "Responsive websites traditionally uses css to achieve different layouts."
+        , "In this post, I'll explain why I believe that it is a bad practice, and how we can do better" 
+        ]
+    , content = [ div [] [] ]
+    }
 
 
 
-unsafeReadDate : String -> Date
-unsafeReadDate value =
-    case Date.fromString value of
-       Ok date -> date

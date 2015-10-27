@@ -1,5 +1,6 @@
 module Utils where
 
+import Date exposing (Date)
 import Html
 import Html.Events
 import History
@@ -20,3 +21,7 @@ sign x =
     else
         1
 
+unsafeReadDate : String -> Date
+unsafeReadDate value =
+    case Date.fromString value of
+       Ok date -> date
