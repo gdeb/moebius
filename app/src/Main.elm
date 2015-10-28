@@ -10,6 +10,7 @@ import Window
 
 import Application
 import Core exposing (..)
+import Models.Posts
 import Views.About
 import Views.Home
 import Views.Posts
@@ -68,9 +69,10 @@ type alias Routes = Dict.Dict String Route
 
 routes: Routes
 routes =
-    let (:->) url (view, seq) = (url, Route view url seq)
-    in
-        Dict.fromList
+    let
+        (:->) url (view, seq) = (url, Route view url seq)
+
+        staticRoutes =
             [ "/"              :-> (Views.Home.view, 0)
             , "/index.html"    :-> (Views.Home.view, 0)
             , "/about.html"    :-> (Views.About.view, 10)
@@ -78,6 +80,17 @@ routes =
             , "/projects.html" :-> (Views.Projects.view, 30)
             , "/post/blip.html" :-> (Views.Posts.view, 21)
             ]
+
+        postRoute seq post =
+            let
+                url = "/post/" ++ post.urlName ++ ".html"
+            in
+                url :-> (Views.Posts.viewPost post.urlName, 21 + seq)
+
+        postRoutes = List.indexedMap postRoute Models.Posts.posts
+
+    in
+        Dict.fromList (staticRoutes ++ postRoutes)
 
 
 getRoute: String -> Route
