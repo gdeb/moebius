@@ -40,7 +40,14 @@ test1 =
     , date = unsafeReadDate "10/29/2015"
     , urlName = "client-side-routing"
     , summary = [ "summary. this is a paragraph", "and this is another"]
-    , content = [ div [] [text "main content"], div [] [text "other stuff"] ]
+    , content = [ div [] [ text """
+      Talk about type safe/not type safe, recursive definition.
+      Also, small amount of routes in this case -> just a list of routes
+      Consequently, it has to keep in memory the routes, and a closure for each
+      of them. High memory cost?
+
+      alternative is to put the lookup on getRoute and make some string
+      manipulation""" ] ]
     }
 
 onResponsiveDesign : Post

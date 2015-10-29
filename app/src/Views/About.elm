@@ -9,7 +9,7 @@ import Components exposing (genericContent, footer)
 view: View
 view =
     { title = "About me"
-    , content = genericContent "About" content footer
+    , content = genericContent (always content) footer
     , fullScreen = False
     }
 

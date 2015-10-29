@@ -78,7 +78,6 @@ routes =
             , "/about.html"    :-> (Views.About.view, 10)
             , "/posts.html"    :-> (Views.Posts.view, 20)
             , "/projects.html" :-> (Views.Projects.view, 30)
-            , "/post/blip.html" :-> (Views.Posts.view, 21)
             ]
 
         postRoute seq post =

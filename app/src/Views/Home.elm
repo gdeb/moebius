@@ -7,7 +7,7 @@ import Components exposing (genericContent, footer)
 view: View
 view =
     { title = "Home"
-    , content = genericContent "Home" content footer
+    , content = genericContent (always content) footer
     , fullScreen = False
     }
 

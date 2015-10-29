@@ -7,32 +7,19 @@ import Utils exposing (linkTo)
 import Core exposing (Context, Layout)
 
 
-genericContent: String -> List Html -> List Html -> Context -> List Html
-genericContent title content footer context =
-    case context.layout of
-        Core.Mobile ->
-            [ div [ class "content" ] content
-            , div [ class "footer" ] footer
-            ]
-
-        Core.Desktop ->
-            [ div [ class "header" ] (header title)
-            , div [ class "content" ] content
-            , div [ class "footer" ] footer
-            ]
+genericContent : (Context -> List Html) -> List Html -> Context -> List Html
+genericContent render footer context =
+    [ div [ class "content" ] (render context)
+    , div [ class "footer" ] footer
+    ]
 
 
-header: String -> List Html
-header title =
-    [ text title ]
-
-
-footer: List Html
+footer : List Html
 footer =
     [ text "© 2015 Géry Debongnie, all rights reserved." ]
 
 
-sidebar: String -> Html
+sidebar : String -> Html
 sidebar url =
     let
         isActive url' =
@@ -52,14 +39,14 @@ sidebar url =
                 ]
             ]
 
-navbar: Attribute -> String -> Html
+navbar : Attribute -> String -> Html
 navbar onClick title =
     div [class "navbar" ]
         [ span [ class "hamburger", onClick ] [ i [ class "icono-bars" ] [] ]
         , span [ class "title" ] [ text title ]
         ]
 
-drawer: String -> Int -> Html
+drawer : String -> Int -> Html
 drawer url maxHeight =
     let
         attrs url' =

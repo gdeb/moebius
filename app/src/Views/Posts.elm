@@ -1,9 +1,8 @@
 module Views.Posts where
 
-import Html exposing (Html, text, h1, h2, h3, div, p)
-import Html.Attributes exposing (class)
+import Html exposing (Html, text, h1, h2, h3, div, p, a)
+import Html.Attributes exposing (class, href)
 import Core exposing (View)
-import Date
 
 import Models.Posts exposing (Post, posts)
 import Components exposing (genericContent, footer)
@@ -18,7 +17,7 @@ view =
         overviews = List.map renderPostOverview posts
     in
         { title = "Posts"
-        , content = genericContent "Posts" (intro ++ overviews) footer
+        , content = genericContent (always <| intro ++ overviews) footer
         , fullScreen = False
         }
 
@@ -27,14 +26,12 @@ renderPostOverview: Post -> Html
 renderPostOverview post =
     let
         date = div [ class "date" ] [ text (formatDate post.date) ]
-        title = h2 [] [ text post.title ]
+        title = h2 [ linkTo' post.urlName ] [ a [ href "#" ] [ text post.title ]]
         summary = List.map (\paragraph -> p [] [text paragraph]) post.summary
         content =
             [ title, date ] ++ summary
-
-        link = linkTo ("/post/" ++ post.urlName ++ ".html")
     in
-        div [ class "post overview", link ] content
+        div [ class "post overview" ] content
 
 
 viewPost: String -> View
@@ -45,7 +42,7 @@ viewPost urlName =
         case post of
             Just post' ->
                 { title = "Posts" ++ urlName
-                , content = genericContent ("Posts" ++ urlName) (renderPost post') footer
+                , content = genericContent (always <| renderPost post') footer
                 , fullScreen = False
                 }
 
@@ -68,3 +65,6 @@ renderPost post =
         [title, subtitle, date] ++ post.content
 
 
+-- utils
+linkTo' urlName =
+    linkTo ("/post/" ++ urlName ++ ".html")
